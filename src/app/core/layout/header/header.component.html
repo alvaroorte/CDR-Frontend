@@ -1,0 +1,73 @@
+<header
+  class="px-4 flex overflow-hidden sticky top-0 header-main-custom shadow-3"
+  [ngClass]="[backgroundColorHeader]"
+  [style]="{'width': '101%', 'z-index': 100}"
+  >
+  <!-- Logo provisional en texto hasta contar con el logo de la marca -->
+  <div class="flex-none flex align-items-center justify-content-center px-2 py-3">
+    <a [routerLink]="loginService.isLoggedIn() ? loginService.homeRoute() : '/login'"
+       class="flex align-items-center no-underline cursor-pointer">
+      <i class="pi pi-shop text-3xl text-teal-600 mr-2"></i>
+      <span class="text-2xl font-bold lynch-900 app-name">{{ appName }}</span>
+    </a>
+  </div>
+  <nav class="flex-grow-1 flex justify-content-center">
+    @if (loginService.isLoggedIn()) {
+      <ul class="flex flex-wrap gap-3 justify-content-center font-medium align-items-center fadeinup animation-duration-500">
+        @for (option of optionsHeader(); track option.routerLink) {
+          <li>
+            <a
+              class="hover-round-header px-2 lynch-900 flex align-items-center pt-1"
+              [routerLink]="option.routerLink"
+              routerLinkActive='header-active border-primary'>
+              @if (option.icon) {
+                <i [ngClass]="[option.icon, 'mr-2 font-semibol']"></i>
+              }
+              {{option.label}}
+            </a>
+          </li>
+        }
+        @if (configurationLinks().length > 0) {
+          <li>
+            <a
+              role="button"
+              tabindex="0"
+              (click)="parameters.toggle($event)"
+              (keydown.enter)="parameters.toggle($event)"
+              (keydown.space)="parameters.toggle($event)"
+              class="hover-round-header px-2 lynch-900 flex align-items-center pt-1 cursor-pointer">
+              {{ labels.configurations }}
+              <i class="pi pi-angle-down ml-1"></i>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </nav>
+  <div class="flex-wrap flex align-items-center justify-content-center px-2">
+    <p-toggleswitch inputId="themeSelection"
+      [(ngModel)]="themeSelection"
+      [pTooltip]="labelMode"
+      tooltipPosition="bottom"
+      (onChange)="changeTheme(true)"
+      class="mr-2"
+     />
+    @if (loginService.isLoggedIn()) {
+      <a
+        role="button"
+        tabindex="0"
+        (click)="menu.toggle($event)"
+        (keydown.enter)="menu.toggle($event)"
+        (keydown.space)="menu.toggle($event)"
+        class="hover-round-header lynch-800 font-medium px-2 py-1 text-center"
+        >
+        <span class="cursor-pointer">
+          {{ loginService.fullName() }}
+        </span>
+        <i class="pi pi-user ml-2 text-lg"></i>
+      </a>
+    }
+  </div>
+</header>
+<p-menu #menu [model]="optionsUser" [popup]="true" />
+<p-menu #parameters [model]="configurationLinks()" [popup]="true" />

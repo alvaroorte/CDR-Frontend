@@ -1,0 +1,146 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+html {
+    font-size: 13px;
+}
+
+.sombra-black {
+    box-shadow: 0 10px 10px 0 rgba(46, 47, 49, 0.24), 0 10px 30px 0 rgba(31, 29, 29, 0.19);
+}
+
+.sombra-yellow {
+    box-shadow: 0 10px 10px 0 rgba(105, 88, 28, 0.84), 0 10px 30px 0 rgba(147, 115, 10, 0.29);
+}
+
+.p-dialog {
+    border: none !important;
+    border-radius: 15px !important;
+}
+
+.top-4-half-rem {
+    top: 4.5rem;
+}
+
+.top-10 {
+    top: 10%;
+}
+
+.top-15 {
+    top: 15%;
+}
+
+.top-20 {
+    top: 20%;
+}
+
+.top-60-px {
+    top: 60px;
+}
+
+.top-100-px {
+    top: 100px;
+}
+
+.top-200-px {
+    top: 200px;
+}
+
+.bottom-30-px {
+    bottom: 30px;
+}
+
+.bottom-60-px {
+    bottom: 60px;
+}
+
+.bottom-100-px {
+    bottom: 100px;
+}
+
+.zoom-1:hover {
+    transition: transform 0.4s ease-in-out;
+    transform: scale(1.1);
+}
+
+.zoom-2:hover {
+    transition: transform 0.4s ease-in-out;
+    transform: scale(1.2);
+}
+
+.required-field::after {
+    content: " *";
+    color: red;
+    font-weight: 600;
+}
+
+.break-word {
+    word-break: break-word;
+}
+
+
+.p-select:not(.p-disabled).p-focus,
+.p-inputtext:enabled:focus {
+    box-shadow: none !important;
+}
+
+input.p-password-input {
+    width: 100%;
+}
+
+.animation-duration-400 {
+    animation-duration: 400ms !important;
+}
+
+.fadeinleft {
+    animation: fadeinleft 0.15s linear;
+}
+
+.p-menubar {
+    background-color: transparent !important;
+}
+
+.p-menubar-root-list {
+    gap: 1.2rem !important;
+}
+
+.p-error {
+    color: var(--p-red-500);
+}
+
+.inputtext-hover {
+    border: 1px solid var(--p-inputtext-border-color);
+}
+
+.inputtext-hover:hover {
+    border: 1px solid var(--p-inputtext-hover-border-color);
+}
+
+.non-editable-field {
+    border-radius: var(--p-inputtext-border-radius);
+    min-height: 35px;
+    max-height: 35px;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    white-space: nowrap;
+    background: var(--p-inputtext-disabled-background);
+    color: var(--p-inputtext-disabled-color);
+    border: 1px solid var(--p-inputtext-border-color);
+}
+
+.p-fileupload-basic-content > span {
+    display: none;
+}
+
+.p-fieldset .p-fieldset-legend {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}

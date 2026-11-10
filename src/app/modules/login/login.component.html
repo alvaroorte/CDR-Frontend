@@ -1,0 +1,61 @@
+<form [formGroup]="formLogin" (ngSubmit)="submitLogin()">
+  <div class="grid px-5 mt-8">
+    <div class="col-12 flex justify-content-center align-items-start">
+      <!-- Logo provisional (icono) hasta contar con el logo de la marca -->
+      <i class="pi pi-shop text-teal-600 width-image-logo animation-logo-cdr animation-iteration-infinite"></i>
+    </div>
+
+    <div class="col-12 flex justify-content-center mt-0 mb-1">
+        <h1 class="title-welcome text-teal-600 text-center"> {{ appName }} </h1>
+    </div>
+    <div class="col-12 flex justify-content-center align-items-center zoomin animation-duration-1000">
+      <div class="p-fluid mt-3 background-gray-blured px-5 pt-5 pb-3 w-30rem">
+
+        <div class="form-group field my-3">
+          <p-floatlabel>
+            <input
+              type="text"
+              pInputText id="username"
+              formControlName="username"
+              autocomplete="username"
+              class="p-inputtext w-full"
+            />
+            <label for="username" class="text-lg font-bold lynch-800 required-field">{{ labels.username }}</label>
+          </p-floatlabel>
+          @if (formLogin.controls.username.touched && formLogin.controls.username.hasError('required')) {
+            <small class="p-error block mt-2">{{ messages.usernameIsRequired }}</small>
+          }
+        </div>
+
+        <div class="form-group field mt-6">
+          <p-floatlabel>
+            <p-password inputId="password"
+              formControlName="password"
+              class="w-full"
+              styleClass="w-full"
+              autocomplete="current-password"
+              [toggleMask]="true"
+              [feedback]="false"
+              />
+            <label for="password" class="text-lg font-bold lynch-800 required-field">{{ labels.password }}</label>
+          </p-floatlabel>
+          @if (formLogin.controls.password.touched && formLogin.controls.password.hasError('required')) {
+            <small class="p-error block mt-2">{{ messages.passwordIsRequired }}</small>
+          }
+        </div>
+
+        <div class="p-2 pb-3 col-12 flex justify-content-center">
+          <p-button type="submit"
+            icon="pi pi-sign-in"
+            size="small"
+            [label]="labels.getInto"
+            [rounded]="true"
+            styleClass="shadow-3 hover-primary"
+            [disabled]="formLogin.invalid"
+            />
+        </div>
+
+      </div>
+    </div>
+  </div>
+</form>

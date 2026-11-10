@@ -1,0 +1,15 @@
+@if (isMobilePhone) {
+    <app-mobile-app-required />
+} @else {
+    <app-loader />
+    <p-toast />
+    <div class="background-main" style="width: 99%; max-width: 100vw;">
+        <app-header />
+        <div class="ml-5 mr-4 mb-5">
+            <div class="layout-main">
+                <router-outlet />
+            </div>
+        </div>
+        <app-footer />
+    </div>
+}

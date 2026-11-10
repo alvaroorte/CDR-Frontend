@@ -1,0 +1,23 @@
+.title-welcome {
+    font-size: clamp(2.5rem, 4.2vw, 6rem);
+}
+
+.width-image-logo {
+    font-size: clamp(5rem, 7vw, 10rem);
+}
+
+.animation-logo-cdr {
+    animation: fadeoutdown 2.5s ease-in-out;
+}
+
+@keyframes fadeoutdown {
+    0% {
+        transform: translateY(0%) scale(1);
+    }
+    50% {
+        transform: translateY(-5%) scale(1.06);
+    }
+    100% {
+        transform: translateY(0%) scale(1);
+    }
+}

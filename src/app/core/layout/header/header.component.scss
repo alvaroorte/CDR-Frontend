@@ -1,0 +1,60 @@
+.app-name {
+    letter-spacing: 0.02em;
+}
+
+.image-logo-header {
+    max-height: 4.5rem;
+}
+
+li {
+    list-style-type: none;
+  }
+
+.header-main-custom {
+    backdrop-filter: blur(6px);
+    transition: background-color 0.8s ease-in-out;
+}
+
+a {
+    text-decoration: none;
+    box-sizing: border-box;
+    min-height: 1.6rem;
+}
+
+.hover-round-header {
+    transition: transform 0.3s ease-in-out;
+}
+
+.hover-round-header:hover {
+    box-sizing: border-box;
+    border-radius: 10px;
+    border-width: 2px !important;
+    border-style: solid;
+    border-left: none;
+    border-top: none;
+    border-right: none;
+    border-color: var(--p-inputtext-hover-border-color);
+    transform: scale(1.1) translateY(-5px);
+}
+
+.header-active {
+    box-sizing: border-box;
+    border-radius: 10px;
+    border-width: 2px !important;
+    border-style: solid;
+    border-left: none;
+    border-top: none;
+    border-right: none;
+    font-size: 1.2rem;
+    font-weight: 550;
+}
+
+
+
+
+
+
+
+
+
+
