@@ -18,6 +18,8 @@ export const urlsWithPermissions: MenuHeader[] = [
   { routerLink: 'orders', label: 'Pedidos', access: CASH, show: true, icon: 'pi pi-list' },
   { routerLink: 'kitchen', label: 'Cocina', access: [ROLES_CODE_SYSTEM.ADMIN, ROLES_CODE_SYSTEM.KITCHEN], show: true, icon: 'pi pi-stopwatch' },
   { routerLink: 'cash-register', label: 'Caja', access: CASH, show: true, icon: 'pi pi-wallet' },
+  // ----- Reportes (Etapa 6, decisión aprobada: solo ADMIN) -----
+  { routerLink: 'reports', label: 'Reportes', access: ADMIN, show: true, icon: 'pi pi-chart-bar' },
   // ----- Configuraciones (Etapa 2) -----
   { routerLink: 'categories', label: 'Categorías', access: ADMIN, show: false, icon: 'pi pi-th-large' },
   // CAJERO entra a productos solo para marcarlos agotados/disponibles (decisión aprobada).

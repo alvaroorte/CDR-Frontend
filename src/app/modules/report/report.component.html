@@ -1,0 +1,429 @@
+<div class="container mx-3 mb-0 pb-4">
+  <p-fieldset styleClass="sombra-black">
+    <ng-template #header>
+      <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
+        <h1 class="text-white text-2xl">Reportes <span class="text-sm"> Ventas, productos, cobros y operación</span></h1>
+      </div>
+    </ng-template>
+
+    <!-- ===== Filtros comunes ===== -->
+    <form [formGroup]="formFilter" (ngSubmit)="search()"
+      class="sombra-black border-round-xl surface-0 p-3 mb-3 grid align-items-end fadeindown animation-duration-400">
+      <div class="col-12 md:col-6 lg:col-3">
+        <label for="reportDates" class="font-semibold block mb-1">Fecha de negocio <span class="text-red-500">*</span></label>
+        <p-datepicker inputId="reportDates" formControlName="dates" selectionMode="range" [readonlyInput]="true" [maxDate]="maxDate"
+          dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" class="w-full" styleClass="w-full" />
+        @if (formFilter.controls.dates.invalid && formFilter.controls.dates.touched) {
+          <small class="p-error">El rango de fechas es obligatorio.</small>
+        }
+      </div>
+      <div class="col-12 sm:col-6 lg:col-2">
+        <label for="reportUser" class="font-semibold block mb-1">Cajero</label>
+        <p-select inputId="reportUser" formControlName="userId" [options]="users()" optionLabel="name" optionValue="id"
+          [filter]="true" [showClear]="true" placeholder="Todos" appendTo="body" class="w-full" />
+      </div>
+      <div class="col-12 sm:col-6 lg:col-2">
+        <label for="reportServiceType" class="font-semibold block mb-1">Modalidad</label>
+        <p-select inputId="reportServiceType" formControlName="serviceType" [options]="serviceTypeOptions" optionLabel="label"
+          optionValue="value" [showClear]="true" placeholder="Todas" appendTo="body" class="w-full" />
+      </div>
+      @if (activeTab === REPORT_TYPE.PRODUCTS) {
+        <div class="col-12 sm:col-6 lg:col-2">
+          <label for="reportCategory" class="font-semibold block mb-1">Categoría</label>
+          <p-select inputId="reportCategory" formControlName="categoryId" [options]="categories()" optionLabel="name" optionValue="id"
+            [filter]="true" [showClear]="true" placeholder="Todas" appendTo="body" class="w-full" />
+        </div>
+      }
+      @if (activeTab === REPORT_TYPE.PAYMENTS) {
+        <div class="col-12 sm:col-6 lg:col-2">
+          <label for="reportPaymentMethod" class="font-semibold block mb-1">Medio de pago</label>
+          <p-select inputId="reportPaymentMethod" formControlName="paymentMethodId" [options]="paymentMethods()" optionLabel="name"
+            optionValue="id" [showClear]="true" placeholder="Todos" appendTo="body" class="w-full" />
+        </div>
+      }
+      <div class="col-12 lg flex flex-wrap gap-2 justify-content-end">
+        <p-button type="submit" label="Consultar" icon="pi pi-search" [rounded]="true" [loading]="loading()" />
+        <p-button label="Limpiar" icon="pi pi-filter-slash" [rounded]="true" [outlined]="true" severity="secondary" (click)="clearFilters()" />
+        <p-button label="Exportar Excel" icon="pi pi-file-excel" [rounded]="true" severity="success" styleClass="sombra-black"
+          [loading]="exporting()" [disabled]="!appliedFilter()" (click)="exportExcel()" />
+      </div>
+      @if (appliedFilter(); as applied) {
+        <div class="col-12 pt-0 text-sm lynch-600">
+          <i class="pi pi-info-circle mr-1"></i>Mostrando del {{ applied.dateFrom | formatDate }} al {{ applied.dateTo | formatDate }}.
+          Importes según el precio de cada pedido al momento de la venta; los pedidos cancelados no suman a las ventas.
+        </div>
+      }
+    </form>
+
+    <div class="sombra-black border-round-xl surface-0 p-2 fadeindown animation-duration-400">
+      <p-tabs [value]="activeTab" (valueChange)="onTabChange($event)">
+        <p-tablist>
+          <p-tab [value]="REPORT_TYPE.SALES"><i class="pi pi-chart-line mr-2"></i>{{ reportLabels[REPORT_TYPE.SALES] }}</p-tab>
+          <p-tab [value]="REPORT_TYPE.PRODUCTS"><i class="pi pi-shopping-bag mr-2"></i>{{ reportLabels[REPORT_TYPE.PRODUCTS] }}</p-tab>
+          <p-tab [value]="REPORT_TYPE.PAYMENTS"><i class="pi pi-wallet mr-2"></i>{{ reportLabels[REPORT_TYPE.PAYMENTS] }}</p-tab>
+          <p-tab [value]="REPORT_TYPE.OPERATIONS"><i class="pi pi-users mr-2"></i>{{ reportLabels[REPORT_TYPE.OPERATIONS] }}</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+
+          <!-- ===== Ventas ===== -->
+          <p-tabpanel [value]="REPORT_TYPE.SALES">
+            @if (sales(); as report) {
+              <div class="grid">
+                @for (tile of [
+                  { label: 'Bruto', value: report.summary.gross, icon: 'pi pi-shopping-cart', hint: 'Suma de subtotales' },
+                  { label: 'Descuentos', value: report.summary.discount, icon: 'pi pi-percentage', hint: 'Descuentos generales aplicados' },
+                  { label: 'Neto', value: report.summary.net, icon: 'pi pi-chart-line', hint: 'Bruto − descuentos' },
+                  { label: 'Pagado', value: report.summary.paid, icon: 'pi pi-money-bill', hint: 'Cobros vigentes (sin devoluciones)' },
+                  { label: 'Ticket promedio', value: report.summary.averageTicket, icon: 'pi pi-receipt', hint: 'Neto ÷ pedidos' }
+                ]; track tile.label) {
+                  <div class="col-12 sm:col-6 xl:col">
+                    <div class="sombra-black border-round-xl surface-0 p-3 h-full" [pTooltip]="tile.hint" tooltipPosition="top">
+                      <div class="lynch-600"><i [class]="tile.icon + ' mr-2 text-primary'"></i>{{ tile.label }}</div>
+                      <div class="text-2xl font-bold lynch-900 mt-2">{{ tile.value | currencyBs }}</div>
+                    </div>
+                  </div>
+                }
+                <div class="col-12 flex flex-wrap gap-3 text-lg">
+                  <p-tag severity="info" [value]="report.summary.orderCount + ' pedidos vendidos'" />
+                  <p-tag severity="danger" [value]="report.summary.cancelledCount + ' cancelados (' + (report.summary.cancelledAmount | currencyBs) + ')'" />
+                  <p-tag severity="secondary" [value]="'Devuelto: ' + (report.summary.refunded | currencyBs)" />
+                </div>
+
+                <div class="col-12 lg:col-8">
+                  <div class="sombra-black border-round-xl surface-0 p-3 h-full">
+                    <div class="flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                      <h3 class="m-0 lynch-900">Ventas por {{ report.groupByLabel.toLowerCase() }}</h3>
+                      <p-selectbutton [options]="groupByOptions" optionLabel="label" optionValue="value"
+                        [formControl]="formFilter.controls.groupBy" (onChange)="onGroupByChange()" [allowEmpty]="false"
+                        ariaLabelledBy="Agrupar por" />
+                    </div>
+                    <p-table [value]="report.periods" [scrollable]="true" scrollHeight="26rem" styleClass="p-datatable-sm">
+                      <ng-template #header>
+                        <tr>
+                          <th>{{ report.groupByLabel }}</th>
+                          <th class="text-right">Pedidos</th>
+                          <th class="text-right">Bruto</th>
+                          <th class="text-right">Descuentos</th>
+                          <th class="text-right">Neto</th>
+                        </tr>
+                      </ng-template>
+                      <ng-template #body let-row>
+                        <tr>
+                          <td class="white-space-nowrap">{{ row.periodStart | formatDate }}</td>
+                          <td class="text-right">{{ row.orderCount }}</td>
+                          <td class="text-right">{{ row.gross | currencyBs }}</td>
+                          <td class="text-right">{{ row.discount | currencyBs }}</td>
+                          <td class="text-right font-semibold">{{ row.net | currencyBs }}</td>
+                        </tr>
+                      </ng-template>
+                      <ng-template #footer>
+                        <tr>
+                          <td>Total</td>
+                          <td class="text-right">{{ report.summary.orderCount }}</td>
+                          <td class="text-right">{{ report.summary.gross | currencyBs }}</td>
+                          <td class="text-right">{{ report.summary.discount | currencyBs }}</td>
+                          <td class="text-right">{{ report.summary.net | currencyBs }}</td>
+                        </tr>
+                      </ng-template>
+                      <ng-template #emptymessage>
+                        <tr><td colspan="5" class="text-center lynch-600 p-4">Sin ventas en el período.</td></tr>
+                      </ng-template>
+                    </p-table>
+                  </div>
+                </div>
+
+                <div class="col-12 lg:col-4">
+                  <div class="sombra-black border-round-xl surface-0 p-3 h-full">
+                    <h3 class="mt-0 lynch-900">Por modalidad</h3>
+                    @for (type of report.serviceTypes; track type.serviceType) {
+                      <div class="py-2 border-bottom-1 surface-border">
+                        <div class="flex justify-content-between text-lg">
+                          <span>{{ type.serviceTypeLabel }} <span class="text-sm lynch-600">({{ type.orderCount }})</span></span>
+                          <span class="font-semibold">{{ type.net | currencyBs }}</span>
+                        </div>
+                        <p-progressbar [value]="type.sharePercent" [showValue]="false" class="mt-2" [style]="{ height: '0.5rem' }" />
+                        <div class="text-sm lynch-600 text-right">{{ type.sharePercent }} %</div>
+                      </div>
+                    } @empty {
+                      <div class="lynch-600">Sin ventas en el período.</div>
+                    }
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <p-skeleton height="14rem" borderRadius="1rem" />
+            }
+          </p-tabpanel>
+
+          <!-- ===== Productos y categorías ===== -->
+          <p-tabpanel [value]="REPORT_TYPE.PRODUCTS">
+            @if (products(); as report) {
+              <div class="grid">
+                <div class="col-12 lg:col-8">
+                  <div class="sombra-black border-round-xl surface-0 p-3 h-full">
+                    <h3 class="mt-0 lynch-900">Productos vendidos</h3>
+                    <p-table [value]="report.products" [scrollable]="true" scrollHeight="28rem" styleClass="p-datatable-sm"
+                      sortField="quantity" [sortOrder]="-1">
+                      <ng-template #header>
+                        <tr>
+                          <th pSortableColumn="productName">Producto <p-sortIcon field="productName" /></th>
+                          <th pSortableColumn="categoryName">Categoría <p-sortIcon field="categoryName" /></th>
+                          <th pSortableColumn="quantity" class="text-right">Cantidad <p-sortIcon field="quantity" /></th>
+                          <th pSortableColumn="orderCount" class="text-right">Pedidos <p-sortIcon field="orderCount" /></th>
+                          <th pSortableColumn="gross" class="text-right">Importe bruto <p-sortIcon field="gross" /></th>
+                          <th class="text-right">%</th>
+                        </tr>
+                      </ng-template>
+                      <ng-template #body let-row>
+                        <tr>
+                          <td class="font-semibold">{{ row.productName }}</td>
+                          <td>{{ row.categoryName }}</td>
+                          <td class="text-right">{{ row.quantity }}</td>
+                          <td class="text-right">{{ row.orderCount }}</td>
+                          <td class="text-right">{{ row.gross | currencyBs }}</td>
+                          <td class="text-right lynch-600">{{ row.sharePercent }} %</td>
+                        </tr>
+                      </ng-template>
+                      <ng-template #emptymessage>
+                        <tr><td colspan="6" class="text-center lynch-600 p-4">Sin productos vendidos en el período.</td></tr>
+                      </ng-template>
+                    </p-table>
+                    <div class="text-sm lynch-600 mt-2">
+                      <i class="pi pi-info-circle mr-1"></i>Importe antes del descuento general del pedido (el descuento no se reparte por producto).
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 lg:col-4">
+                  <div class="sombra-black border-round-xl surface-0 p-3 h-full">
+                    <h3 class="mt-0 lynch-900">Por categoría</h3>
+                    @for (category of report.categories; track category.categoryId) {
+                      <div class="py-2 border-bottom-1 surface-border">
+                        <div class="flex justify-content-between text-lg">
+                          <span>{{ category.categoryName }} <span class="text-sm lynch-600">({{ category.quantity }} u.)</span></span>
+                          <span class="font-semibold">{{ category.gross | currencyBs }}</span>
+                        </div>
+                        <p-progressbar [value]="category.sharePercent" [showValue]="false" class="mt-2" [style]="{ height: '0.5rem' }" />
+                        <div class="text-sm lynch-600 text-right">{{ category.sharePercent }} %</div>
+                      </div>
+                    } @empty {
+                      <div class="lynch-600">Sin ventas en el período.</div>
+                    }
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <p-skeleton height="14rem" borderRadius="1rem" />
+            }
+          </p-tabpanel>
+
+          <!-- ===== Medios de pago y cajas ===== -->
+          <p-tabpanel [value]="REPORT_TYPE.PAYMENTS">
+            @if (payments(); as report) {
+              <div class="grid">
+                <div class="col-12">
+                  <div class="sombra-black border-round-xl surface-0 p-3">
+                    <h3 class="mt-0 lynch-900">Cobros por medio de pago</h3>
+                    <p-table [value]="report.paymentMethods" styleClass="p-datatable-sm">
+                      <ng-template #header>
+                        <tr>
+                          <th>Medio de pago</th>
+                          <th class="text-right">Pagos</th>
+                          <th class="text-right">Cobrado</th>
+                          <th class="text-right">Devoluciones</th>
+                          <th class="text-right">Devuelto</th>
+                          <th class="text-right">% de lo cobrado</th>
+                        </tr>
+                      </ng-template>
+                      <ng-template #body let-row>
+                        <tr>
+                          <td class="font-semibold">{{ row.paymentMethodName }}</td>
+                          <td class="text-right">{{ row.paidCount }}</td>
+                          <td class="text-right font-semibold">{{ row.paid | currencyBs }}</td>
+                          <td class="text-right">{{ row.refundedCount }}</td>
+                          <td class="text-right" [class.text-red-500]="row.refunded > 0">{{ row.refunded | currencyBs }}</td>
+                          <td class="text-right lynch-600">{{ row.sharePercent }} %</td>
+                        </tr>
+                      </ng-template>
+                      <ng-template #emptymessage>
+                        <tr><td colspan="6" class="text-center lynch-600 p-4">Sin cobros en el período.</td></tr>
+                      </ng-template>
+                    </p-table>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="sombra-black border-round-xl surface-0 p-3">
+                    <h3 class="mt-0 lynch-900">Cajas abiertas en el período</h3>
+                    <p-table [value]="report.cashSessions" [scrollable]="true" scrollHeight="28rem" styleClass="p-datatable-sm">
+                      <ng-template #header>
+                        <tr>
+                          <th>Caja</th>
+                          <th>Cajero</th>
+                          <th>Apertura</th>
+                          <th>Cierre</th>
+                          <th>Estado</th>
+                          <th class="text-right">Monto inicial</th>
+                          <th class="text-right">Ventas</th>
+                          <th class="text-right">Esperado</th>
+                          <th class="text-right">Declarado</th>
+                          <th class="text-right">Diferencia</th>
+                        </tr>
+                      </ng-template>
+                      <ng-template #body let-row>
+                        <tr>
+                          <td class="font-semibold">#{{ row.id }}</td>
+                          <td>{{ row.userFullName }}</td>
+                          <td class="white-space-nowrap">{{ row.openedAt | formatDateWhitHour }}</td>
+                          <td class="white-space-nowrap">
+                            @if (row.closedAt) { {{ row.closedAt | formatDateWhitHour }}
+                              @if (row.closedBy && row.closedBy !== row.username) { <span class="text-sm lynch-600">({{ row.closedBy }})</span> }
+                            } @else { — }
+                          </td>
+                          <td><p-tag [value]="row.statusLabel" [severity]="row.status === 'OPEN' ? 'success' : 'secondary'" /></td>
+                          <td class="text-right">{{ row.openingAmount | currencyBs }}</td>
+                          <td class="text-right">{{ row.salesTotal | currencyBs }}</td>
+                          <td class="text-right">{{ row.expectedTotal | currencyBs }}</td>
+                          <td class="text-right">{{ row.declaredTotal | currencyBs }}</td>
+                          <td class="text-right font-bold" [class.text-red-500]="row.differenceTotal < 0" [class.text-green-600]="row.differenceTotal > 0">
+                            @if (row.differenceTotal !== null) { {{ row.differenceTotal > 0 ? '+' : '' }}{{ row.differenceTotal | currencyBs }} }
+                          </td>
+                        </tr>
+                      </ng-template>
+                      <ng-template #emptymessage>
+                        <tr><td colspan="10" class="text-center lynch-600 p-4">No se abrieron cajas en el período.</td></tr>
+                      </ng-template>
+                    </p-table>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <p-skeleton height="14rem" borderRadius="1rem" />
+            }
+          </p-tabpanel>
+
+          <!-- ===== Usuarios, descuentos y estados ===== -->
+          <p-tabpanel [value]="REPORT_TYPE.OPERATIONS">
+            @if (operations(); as report) {
+              <div class="grid">
+                <div class="col-12 lg:col-8">
+                  <div class="sombra-black border-round-xl surface-0 p-3 h-full">
+                    <h3 class="mt-0 lynch-900">Ventas por cajero</h3>
+                    <p-table [value]="report.users" styleClass="p-datatable-sm">
+                      <ng-template #header>
+                        <tr>
+                          <th>Cajero</th>
+                          <th class="text-right">Pedidos</th>
+                          <th class="text-right">Bruto</th>
+                          <th class="text-right">Descuentos</th>
+                          <th class="text-right">Neto</th>
+                          <th class="text-right">Cancelados</th>
+                        </tr>
+                      </ng-template>
+                      <ng-template #body let-row>
+                        <tr>
+                          <td><span class="font-semibold">{{ row.userFullName }}</span> <span class="text-sm lynch-600">({{ row.username }})</span></td>
+                          <td class="text-right">{{ row.orderCount }}</td>
+                          <td class="text-right">{{ row.gross | currencyBs }}</td>
+                          <td class="text-right">{{ row.discount | currencyBs }}</td>
+                          <td class="text-right font-semibold">{{ row.net | currencyBs }}</td>
+                          <td class="text-right" [class.text-red-500]="row.cancelledCount > 0">{{ row.cancelledCount }}</td>
+                        </tr>
+                      </ng-template>
+                      <ng-template #emptymessage>
+                        <tr><td colspan="6" class="text-center lynch-600 p-4">Sin pedidos en el período.</td></tr>
+                      </ng-template>
+                    </p-table>
+                  </div>
+                </div>
+                <div class="col-12 lg:col-4">
+                  <div class="sombra-black border-round-xl surface-0 p-3 h-full">
+                    <h3 class="mt-0 lynch-900">Pedidos por estado</h3>
+                    @for (status of report.statuses; track status.status) {
+                      <div class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border">
+                        <p-tag [value]="statusLabel(status.status)" [severity]="statusSeverity(status.status)" />
+                        <span><span class="font-semibold text-lg">{{ status.orderCount }}</span>
+                          <span class="text-sm lynch-600 ml-2">{{ status.total | currencyBs }}</span></span>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="sombra-black border-round-xl surface-0 p-3">
+                    <h3 class="mt-0 lynch-900">Descuentos aplicados <span class="text-base lynch-600">({{ report.discounts.length }})</span></h3>
+                    <p-table [value]="report.discounts" [scrollable]="true" scrollHeight="24rem" styleClass="p-datatable-sm">
+                      <ng-template #header>
+                        <tr>
+                          <th>Pedido</th>
+                          <th>Fecha</th>
+                          <th>Cajero</th>
+                          <th>Tipo</th>
+                          <th class="text-right">Subtotal</th>
+                          <th class="text-right">Descuento</th>
+                          <th class="text-right">Total</th>
+                          <th>Motivo</th>
+                        </tr>
+                      </ng-template>
+                      <ng-template #body let-row>
+                        <tr>
+                          <td class="font-semibold">{{ row.codeLabel }}</td>
+                          <td class="white-space-nowrap">{{ row.createdAt | formatDateWhitHour }}</td>
+                          <td>{{ row.cashier }}</td>
+                          <td class="white-space-nowrap">
+                            {{ row.discountTypeLabel }}
+                            <span class="lynch-600">({{ row.discountType === 'PERCENTAGE' ? row.discountValue + ' %' : (row.discountValue | currencyBs) }})</span>
+                          </td>
+                          <td class="text-right">{{ row.subtotal | currencyBs }}</td>
+                          <td class="text-right text-red-500">- {{ row.discountAmount | currencyBs }}</td>
+                          <td class="text-right font-semibold">{{ row.total | currencyBs }}</td>
+                          <td>{{ row.discountReason ?? '—' }}</td>
+                        </tr>
+                      </ng-template>
+                      <ng-template #emptymessage>
+                        <tr><td colspan="8" class="text-center lynch-600 p-4">Sin descuentos en el período.</td></tr>
+                      </ng-template>
+                    </p-table>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="sombra-black border-round-xl surface-0 p-3">
+                    <h3 class="mt-0 lynch-900">Cancelaciones <span class="text-base lynch-600">({{ report.cancellations.length }})</span></h3>
+                    <p-table [value]="report.cancellations" [scrollable]="true" scrollHeight="24rem" styleClass="p-datatable-sm">
+                      <ng-template #header>
+                        <tr>
+                          <th>Pedido</th>
+                          <th>Registrado</th>
+                          <th>Cajero</th>
+                          <th class="text-right">Total devuelto</th>
+                          <th>Motivo</th>
+                          <th>Cancelado por</th>
+                          <th>Cancelado el</th>
+                        </tr>
+                      </ng-template>
+                      <ng-template #body let-row>
+                        <tr>
+                          <td class="font-semibold">{{ row.codeLabel }}</td>
+                          <td class="white-space-nowrap">{{ row.createdAt | formatDateWhitHour }}</td>
+                          <td>{{ row.cashier }}</td>
+                          <td class="text-right">{{ row.total | currencyBs }}</td>
+                          <td>{{ row.cancelReason ?? '—' }}</td>
+                          <td>{{ row.cancelledBy ?? '—' }}</td>
+                          <td class="white-space-nowrap">{{ row.cancelledAt | formatDateWhitHour }}</td>
+                        </tr>
+                      </ng-template>
+                      <ng-template #emptymessage>
+                        <tr><td colspan="7" class="text-center lynch-600 p-4">Sin cancelaciones en el período.</td></tr>
+                      </ng-template>
+                    </p-table>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <p-skeleton height="14rem" borderRadius="1rem" />
+            }
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
+    </div>
+  </p-fieldset>
+</div>

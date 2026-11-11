@@ -35,6 +35,12 @@ export const routes: Routes = [
     loadComponent: () => import('./modules/orders/orders.component').then(c => c.OrdersComponent),
     canActivate: [authGuard]
   },
+  // ----- Reportes (Etapa 6) -----
+  {
+    path: 'reports',
+    loadComponent: () => import('./modules/report/report.component').then(c => c.ReportComponent),
+    canActivate: [authGuard]
+  },
   // ----- Configuraciones (Etapa 2) -----
   {
     path: 'categories',

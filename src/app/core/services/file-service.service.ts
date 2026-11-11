@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
 
+/** MIME de los archivos que descarga el sistema. */
+export const MIME_EXCEL = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
 /** Utilidades de archivos (versión reducida del FileService de la referencia: aquí no hay adjuntos). */
 @Injectable({
    providedIn: 'root'
@@ -17,5 +20,27 @@ export class FileService {
          };
          reader.onerror = error => reject(error);
       });
+   }
+
+   /** Base64 → File (igual que convertBase64ToFile de la referencia). */
+   public convertBase64ToFile(base64String: string, fileName: string, mimeType: string): File {
+      const byteCharacters = atob(base64String);
+      const bytes = new Uint8Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+         bytes[i] = byteCharacters.charCodeAt(i);
+      }
+      return new File([bytes], fileName, { type: mimeType });
+   }
+
+   /** Descarga el archivo en el navegador (igual que downloadFile de la referencia). */
+   public downloadFile(file: File, fileName: string): void {
+      const url = window.URL.createObjectURL(file);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
    }
 }

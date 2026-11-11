@@ -21,6 +21,11 @@ Guía para Claude Code en este repositorio. Frontend del sistema de pedidos de l
 > vivo, advertencia de pedidos sin entregar, nota obligatoria si el ADMIN cierra la caja de otro, 409 → recarga el
 > esperado conservando lo contado) y `modal-session-detail`. `core/utils/dates.ts` (`toIsoDate`).
 > `@stomp/stompjs` + `sockjs-client` instalados (polyfill `global` en `src/polyfills.ts`, igual que la referencia).
+> **Etapa 6:** `modules/report` (ruta `/reports`, solo ADMIN): filtros comunes (rango obligatorio, cajero, modalidad;
+> categoría y medio de pago según la pestaña), pestañas Ventas / Productos y categorías / Medios de pago y cajas /
+> Usuarios, descuentos y estados (tarjetas + tablas PrimeNG, **sin librería de gráficos**), cada pestaña se consulta al
+> abrirla y se reutiliza mientras no cambie el filtro. Exportar Excel = archivo generado por el backend (base64) →
+> `FileService.convertBase64ToFile` + `downloadFile` (como la referencia). `ProgressBarModule` añadido a `PrimeModules`.
 > Las etapas se ejecutan **solo con aprobación explícita** del usuario
 > (plan: `../cdr-backend/docs/plans/001-arquitectura-inicial.md` §8).
 
@@ -57,8 +62,9 @@ Lara), PrimeFlex 4, PrimeIcons 7, RxJS 7.8, Vitest. `@stomp/stompjs` + `sockjs-c
 `.npmrc` fija `legacy-peer-deps=true`: npm 10.9 falla con "Cannot read properties of null (reading 'edgesOut')"
 al resolver los peers de vitest/jsdom. Tests: solo `src/**/*.spec.ts` (angular.json), porque Vitest
 tomaría `environment.test.ts` como archivo de pruebas.
-**No** se copian de la referencia: ngx-translate, jwt-decode, highcharts (salvo que reportes lo
-necesiten — decisión de Etapa 6), quill, ng-recaptcha-2, Karma/Jasmine, `curd.service.ts`, `http.service.ts`.
+**No** se copian de la referencia: ngx-translate, jwt-decode, highcharts y exceljs/file-saver (Etapa 6: reportes
+con tarjetas + tablas y Excel generado en el backend — decisión aprobada), quill, ng-recaptcha-2, Karma/Jasmine,
+`curd.service.ts`, `http.service.ts`.
 
 ## Comandos
 

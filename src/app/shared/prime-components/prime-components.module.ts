@@ -52,6 +52,7 @@ import { PopoverModule } from 'primeng/popover';
 import { ImageModule } from 'primeng/image';
 import { TagModule } from 'primeng/tag';
 import { MessageModule } from 'primeng/message';
+import { ProgressBarModule } from 'primeng/progressbar';
 
 @NgModule({
   imports: [
@@ -110,7 +111,8 @@ import { MessageModule } from 'primeng/message';
     PopoverModule,
     ImageModule,
     TagModule,
-    MessageModule
+    MessageModule,
+    ProgressBarModule
   ]
 })
 export class PrimeModules { }
