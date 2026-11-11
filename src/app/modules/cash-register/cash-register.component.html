@@ -2,107 +2,222 @@
   <p-fieldset styleClass="sombra-black">
     <ng-template #header>
       <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
-        <h1 class="text-white text-2xl">{{ labels.cashRegister }} <span class="text-sm"> Apertura y movimientos de caja</span></h1>
+        <h1 class="text-white text-2xl">{{ labels.cashRegister }} <span class="text-sm"> Apertura, movimientos, arqueo y cierre</span></h1>
       </div>
     </ng-template>
 
-    @if (!cashSessionService.loaded()) {
-      <p-skeleton height="10rem" borderRadius="1rem" />
-    } @else if (cashSessionService.current(); as session) {
-      <div class="grid fadeindown animation-duration-400">
-        <div class="col-12 flex flex-wrap justify-content-between align-items-center gap-2">
-          <div class="text-lg lynch-800">
-            <p-tag [value]="labels.cashOpen" severity="success" class="mr-2" />
-            {{ session.userFullName }} · {{ labels.openedAt }} {{ session.openedAt | formatDateWhitHour }}
-          </div>
-          <div class="flex gap-2">
-            <p-button [label]="labels.registerMovement" icon="pi pi-arrow-right-arrow-left" [rounded]="true" [outlined]="true"
-              (click)="openMovement()" />
-            <p-button [label]="labels.pos" icon="pi pi-shopping-cart" [rounded]="true" routerLink="/pos" styleClass="sombra-black" />
-          </div>
-        </div>
+    <div class="sombra-black border-round-xl surface-0 p-2 fadeindown animation-duration-400">
+      <p-tabs [(value)]="activeTab">
+        <p-tablist>
+          <p-tab value="current"><i class="pi pi-wallet mr-2"></i>Mi caja</p-tab>
+          <p-tab value="history"><i class="pi pi-history mr-2"></i>Historial</p-tab>
+        </p-tablist>
+        <p-tabpanels>
 
-        @for (tile of [
-          { label: labels.openingAmount, value: session.openingAmount, icon: 'pi pi-lock-open' },
-          { label: labels.sales, value: session.salesTotal, icon: 'pi pi-shopping-cart' },
-          { label: labels.income, value: session.incomeTotal, icon: 'pi pi-arrow-down-left' },
-          { label: labels.expense, value: session.expenseTotal, icon: 'pi pi-arrow-up-right' },
-          { label: labels.expectedCash, value: session.expectedCash, icon: 'pi pi-money-bill' }
-        ]; track tile.label) {
-          <div class="col-12 sm:col-6 xl:col">
-            <div class="sombra-black border-round-xl surface-0 p-3 h-full">
-              <div class="lynch-600"><i [class]="tile.icon + ' mr-2 text-primary'"></i>{{ tile.label }}</div>
-              <div class="text-2xl font-bold lynch-900 mt-2">{{ tile.value | currencyBs }}</div>
-            </div>
-          </div>
-        }
+          <!-- ===== Mi caja ===== -->
+          <p-tabpanel value="current">
+            @if (!cashSessionService.loaded()) {
+              <p-skeleton height="10rem" borderRadius="1rem" />
+            } @else if (cashSessionService.current(); as session) {
+              <div class="grid">
+                <div class="col-12 flex flex-wrap justify-content-between align-items-center gap-2">
+                  <div class="text-lg lynch-800">
+                    <p-tag [value]="labels.cashOpen" severity="success" class="mr-2" />
+                    {{ session.userFullName }} · {{ labels.openedAt }} {{ session.openedAt | formatDateWhitHour }}
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <p-button [label]="labels.registerMovement" icon="pi pi-arrow-right-arrow-left" [rounded]="true" [outlined]="true"
+                      (click)="openMovement()" />
+                    <p-button [label]="labels.pos" icon="pi pi-shopping-cart" [rounded]="true" routerLink="/pos" styleClass="sombra-black" />
+                    <p-button label="Cerrar caja" icon="pi pi-lock" severity="danger" [rounded]="true" styleClass="sombra-black"
+                      (click)="startClose(session.id)" />
+                  </div>
+                </div>
 
-        <div class="col-12 lg:col-4">
-          <div class="sombra-black border-round-xl surface-0 p-3 h-full">
-            <h3 class="mt-0 lynch-900">{{ labels.salesByMethod }}</h3>
-            @for (method of session.salesByMethod; track method.paymentMethodId) {
-              <div class="flex justify-content-between py-2 border-bottom-1 surface-border text-lg">
-                <span>{{ method.paymentMethodName }}</span>
-                <span class="font-semibold">{{ method.amount | currencyBs }}</span>
+                @for (tile of [
+                  { label: labels.openingAmount, value: session.openingAmount, icon: 'pi pi-lock-open' },
+                  { label: labels.sales, value: session.salesTotal, icon: 'pi pi-shopping-cart' },
+                  { label: labels.income, value: session.incomeTotal, icon: 'pi pi-arrow-down-left' },
+                  { label: labels.expense, value: session.expenseTotal, icon: 'pi pi-arrow-up-right' },
+                  { label: labels.expectedCash, value: session.expectedCash, icon: 'pi pi-money-bill' }
+                ]; track tile.label) {
+                  <div class="col-12 sm:col-6 xl:col">
+                    <div class="sombra-black border-round-xl surface-0 p-3 h-full">
+                      <div class="lynch-600"><i [class]="tile.icon + ' mr-2 text-primary'"></i>{{ tile.label }}</div>
+                      <div class="text-2xl font-bold lynch-900 mt-2">{{ tile.value | currencyBs }}</div>
+                    </div>
+                  </div>
+                }
+
+                <div class="col-12 lg:col-4">
+                  <div class="sombra-black border-round-xl surface-0 p-3 h-full">
+                    <h3 class="mt-0 lynch-900">{{ labels.salesByMethod }}</h3>
+                    @for (method of session.salesByMethod; track method.paymentMethodId) {
+                      <div class="flex justify-content-between py-2 border-bottom-1 surface-border text-lg">
+                        <span>{{ method.paymentMethodName }}</span>
+                        <span class="font-semibold">{{ method.amount | currencyBs }}</span>
+                      </div>
+                    } @empty {
+                      <div class="lynch-600">{{ messages.withOutItems }}</div>
+                    }
+                  </div>
+                </div>
+
+                <div class="col-12 lg:col-8">
+                  <div class="sombra-black border-round-xl surface-0 p-3">
+                    <h3 class="mt-0 lynch-900">{{ labels.movements }}</h3>
+                    <p-table [value]="session.movements" [scrollable]="true" scrollHeight="24rem" styleClass="p-datatable-sm">
+                      <ng-template #header>
+                        <tr>
+                          <th>{{ labels.date }}</th>
+                          <th>{{ labels.type }}</th>
+                          <th>{{ labels.description }}</th>
+                          <th>{{ labels.paymentMethod }}</th>
+                          <th class="text-right">{{ labels.amount }}</th>
+                        </tr>
+                      </ng-template>
+                      <ng-template #body let-movement>
+                        <tr>
+                          <td class="white-space-nowrap">{{ movement.createdAt | formatDateWhitHour }}</td>
+                          <td>{{ movement.typeLabel }}</td>
+                          <td>{{ movement.description }}</td>
+                          <td>{{ movement.paymentMethodName ?? 'Efectivo' }}</td>
+                          <td class="text-right font-semibold white-space-nowrap"
+                            [class.text-red-500]="isOutflow(movement.type)" [class.text-green-600]="!isOutflow(movement.type) && !isOpening(movement.type)">
+                            {{ isOutflow(movement.type) ? '- ' : '' }}{{ movement.amount | currencyBs }}
+                          </td>
+                        </tr>
+                      </ng-template>
+                      <ng-template #emptymessage>
+                        <tr><td colspan="5">{{ messages.withOutItems }}</td></tr>
+                      </ng-template>
+                    </p-table>
+                  </div>
+                </div>
               </div>
-            } @empty {
-              <div class="lynch-600">{{ messages.withOutItems }}</div>
+            } @else {
+              <div class="grid justify-content-center">
+                <div class="col-12 md:col-8 lg:col-5">
+                  <form [formGroup]="formOpen" (ngSubmit)="open()" class="sombra-black border-round-xl surface-0 p-4">
+                    <h2 class="mt-0 lynch-900"><i class="pi pi-wallet mr-2 text-primary"></i>{{ labels.openCashRegister }}</h2>
+                    <p class="lynch-700">{{ messages.cashRegisterRequired }}</p>
+                    <p-floatlabel class="mt-4">
+                      <p-inputnumber inputId="openingAmount" formControlName="openingAmount" mode="decimal" [minFractionDigits]="2"
+                        [maxFractionDigits]="2" [min]="0" class="w-full" inputStyleClass="w-full text-right text-xl" />
+                      <label for="openingAmount" class="text-lg font-bold text-800 required-field">{{ labels.openingAmount }}</label>
+                    </p-floatlabel>
+                    @if (formOpen.controls.openingAmount.touched && formOpen.controls.openingAmount.hasError('required')) {
+                      <small class="p-error block mt-2">{{ messages.requiredField }}</small>
+                    }
+                    <p-button type="submit" [label]="labels.openCashRegister" icon="pi pi-lock-open" [rounded]="true" size="large"
+                      styleClass="w-full mt-4 sombra-black pos-touch" [loading]="opening()" />
+                  </form>
+                </div>
+              </div>
             }
-          </div>
-        </div>
 
-        <div class="col-12 lg:col-8">
-          <div class="sombra-black border-round-xl surface-0 p-3">
-            <h3 class="mt-0 lynch-900">{{ labels.movements }}</h3>
-            <p-table [value]="session.movements" [scrollable]="true" scrollHeight="24rem" styleClass="p-datatable-sm">
+            @if (isAdmin()) {
+              <div class="sombra-black border-round-xl surface-0 p-3 mt-3">
+                <div class="flex justify-content-between align-items-center">
+                  <h3 class="m-0 lynch-900"><i class="pi pi-users mr-2 text-primary"></i>Cajas abiertas de otros usuarios</h3>
+                  <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" pTooltip="Actualizar" [ariaLabel]="'Actualizar'"
+                    (click)="loadOtherOpenSessions()" />
+                </div>
+                @for (other of otherOpenSessions(); track other.id) {
+                  <div class="flex flex-wrap justify-content-between align-items-center py-2 border-bottom-1 surface-border gap-2">
+                    <span><span class="font-semibold">{{ other.userFullName }}</span>
+                      <span class="lynch-600"> · abierta el {{ other.openedAt | formatDateWhitHour }}</span></span>
+                    <span class="flex gap-2">
+                      <p-button icon="pi pi-eye" [rounded]="true" [outlined]="true" size="small" pTooltip="Ver detalle"
+                        [ariaLabel]="'Ver caja de ' + other.userFullName" (click)="openDetail(other.id)" />
+                      <p-button label="Cerrar" icon="pi pi-lock" severity="danger" [rounded]="true" [outlined]="true" size="small"
+                        (click)="startClose(other.id)" />
+                    </span>
+                  </div>
+                } @empty {
+                  <div class="lynch-600 py-2">No hay otras cajas abiertas.</div>
+                }
+              </div>
+            }
+          </p-tabpanel>
+
+          <!-- ===== Historial ===== -->
+          <p-tabpanel value="history">
+            <form [formGroup]="formFilter" (ngSubmit)="search()" class="grid align-items-end mb-2">
+              <div class="col-12 md:col-4 lg:col-3">
+                <label for="cashDates" class="font-semibold block mb-1">Fecha de apertura</label>
+                <p-datepicker inputId="cashDates" formControlName="dates" selectionMode="range" [readonlyInput]="true"
+                  dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" class="w-full" styleClass="w-full" />
+              </div>
+              <div class="col-6 md:col-3 lg:col-2">
+                <label for="cashStatus" class="font-semibold block mb-1">Estado</label>
+                <p-select inputId="cashStatus" formControlName="status" [options]="statusOptions" optionLabel="label" optionValue="value"
+                  [showClear]="true" placeholder="Todas" appendTo="body" class="w-full" />
+              </div>
+              @if (isAdmin()) {
+                <div class="col-6 md:col-5 lg:col-3">
+                  <label for="cashUser" class="font-semibold block mb-1">Usuario</label>
+                  <p-select inputId="cashUser" formControlName="userId" [options]="users()" optionLabel="name" optionValue="id"
+                    [filter]="true" [showClear]="true" placeholder="Todos" appendTo="body" class="w-full" />
+                </div>
+              }
+              <div class="col-12 lg:col-3 flex gap-2">
+                <p-button type="submit" label="Buscar" icon="pi pi-search" [rounded]="true" />
+                <p-button label="Limpiar" icon="pi pi-filter-slash" [rounded]="true" [outlined]="true" severity="secondary" (click)="clearFilters()" />
+              </div>
+            </form>
+
+            <p-table [value]="history()" [lazy]="true" (onLazyLoad)="loadHistory($event)" [paginator]="true" [rows]="rows"
+              [totalRecords]="totalRecords()" [loading]="loadingHistory()" dataKey="id" styleClass="p-datatable-sm" [rowHover]="true"
+              currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} cajas" [showCurrentPageReport]="true">
               <ng-template #header>
                 <tr>
-                  <th>{{ labels.date }}</th>
-                  <th>{{ labels.type }}</th>
-                  <th>{{ labels.description }}</th>
-                  <th>{{ labels.paymentMethod }}</th>
-                  <th class="text-right">{{ labels.amount }}</th>
+                  <th>Caja</th>
+                  <th>Usuario</th>
+                  <th>Apertura</th>
+                  <th>Cierre</th>
+                  <th>Estado</th>
+                  <th class="text-right">Esperado</th>
+                  <th class="text-right">Declarado</th>
+                  <th class="text-right">Diferencia</th>
+                  <th></th>
                 </tr>
               </ng-template>
-              <ng-template #body let-movement>
+              <ng-template #body let-row>
                 <tr>
-                  <td class="white-space-nowrap">{{ movement.createdAt | formatDateWhitHour }}</td>
-                  <td>{{ movement.typeLabel }}</td>
-                  <td>{{ movement.description }}</td>
-                  <td>{{ movement.paymentMethodName ?? 'Efectivo' }}</td>
-                  <td class="text-right font-semibold white-space-nowrap"
-                    [class.text-red-500]="isOutflow(movement.type)" [class.text-green-600]="!isOutflow(movement.type) && !isOpening(movement.type)">
-                    {{ isOutflow(movement.type) ? '- ' : '' }}{{ movement.amount | currencyBs }}
+                  <td class="font-semibold">#{{ row.id }}</td>
+                  <td>{{ row.userFullName }}</td>
+                  <td class="white-space-nowrap">{{ row.openedAt | formatDateWhitHour }}</td>
+                  <td class="white-space-nowrap">
+                    @if (row.closedAt) { {{ row.closedAt | formatDateWhitHour }}
+                      @if (row.closedBy && row.closedBy !== row.username) { <span class="text-sm lynch-600">({{ row.closedBy }})</span> }
+                    } @else { — }
+                  </td>
+                  <td><p-tag [value]="row.statusLabel" [severity]="row.status === 'OPEN' ? 'success' : 'secondary'" /></td>
+                  <td class="text-right">{{ row.expectedTotal | currencyBs }}</td>
+                  <td class="text-right">{{ row.declaredTotal | currencyBs }}</td>
+                  <td class="text-right font-bold" [class.text-red-500]="row.differenceTotal < 0" [class.text-green-600]="row.differenceTotal > 0">
+                    @if (row.differenceTotal !== null) { {{ row.differenceTotal > 0 ? '+' : '' }}{{ row.differenceTotal | currencyBs }} }
+                  </td>
+                  <td class="text-right">
+                    <p-button icon="pi pi-eye" [rounded]="true" [outlined]="true" size="small" pTooltip="Ver detalle"
+                      [ariaLabel]="'Ver caja ' + row.id" (click)="openDetail(row.id)" />
                   </td>
                 </tr>
               </ng-template>
               <ng-template #emptymessage>
-                <tr><td colspan="5">{{ messages.withOutItems }}</td></tr>
+                <tr><td colspan="9" class="text-center lynch-600 p-4">No se encontraron cajas.</td></tr>
               </ng-template>
             </p-table>
-          </div>
-        </div>
-      </div>
-      <app-modal-movement [saving]="savingMovement()" (save)="registerMovement($event)" />
-    } @else {
-      <div class="grid justify-content-center fadeindown animation-duration-400">
-        <div class="col-12 md:col-8 lg:col-5">
-          <form [formGroup]="formOpen" (ngSubmit)="open()" class="sombra-black border-round-xl surface-0 p-4">
-            <h2 class="mt-0 lynch-900"><i class="pi pi-wallet mr-2 text-primary"></i>{{ labels.openCashRegister }}</h2>
-            <p class="lynch-700">{{ messages.cashRegisterRequired }}</p>
-            <p-floatlabel class="mt-4">
-              <p-inputnumber inputId="openingAmount" formControlName="openingAmount" mode="decimal" [minFractionDigits]="2"
-                [maxFractionDigits]="2" [min]="0" class="w-full" inputStyleClass="w-full text-right text-xl" />
-              <label for="openingAmount" class="text-lg font-bold text-800 required-field">{{ labels.openingAmount }}</label>
-            </p-floatlabel>
-            @if (formOpen.controls.openingAmount.touched && formOpen.controls.openingAmount.hasError('required')) {
-              <small class="p-error block mt-2">{{ messages.requiredField }}</small>
-            }
-            <p-button type="submit" [label]="labels.openCashRegister" icon="pi pi-lock-open" [rounded]="true" size="large"
-              styleClass="w-full mt-4 sombra-black pos-touch" [loading]="opening()" />
-          </form>
-        </div>
-      </div>
-    }
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
+    </div>
   </p-fieldset>
 </div>
+
+@if (cashSessionService.current()) {
+  <app-modal-movement [saving]="savingMovement()" (save)="registerMovement($event)" />
+}
+<app-modal-close (closed)="onClosed($event)" />
+<app-modal-session-detail />

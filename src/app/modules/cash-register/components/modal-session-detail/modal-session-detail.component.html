@@ -1,0 +1,76 @@
+<p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-11 lg:w-8 xl:w-6" [modal]="true" appendTo="body"
+  [header]="'Caja #' + (session()?.id ?? '')" [dismissableMask]="true">
+  @if (session(); as s) {
+    <div class="flex flex-wrap gap-2 align-items-center mb-3">
+      <p-tag [value]="s.statusLabel" [severity]="s.status === 'OPEN' ? 'success' : 'secondary'" />
+      <span class="lynch-700">{{ s.userFullName }} · {{ s.openedAt | formatDateWhitHour }}
+        @if (s.closedAt) { → {{ s.closedAt | formatDateWhitHour }} (cerró {{ s.closedBy }}) }
+      </span>
+    </div>
+
+    @if (s.summaries.length > 0) {
+      <h4 class="mt-0 mb-2 lynch-900">Arqueo</h4>
+      <p-table [value]="s.summaries" styleClass="p-datatable-sm">
+        <ng-template #header>
+          <tr><th>Medio</th><th class="text-right">Esperado</th><th class="text-right">Declarado</th><th class="text-right">Diferencia</th></tr>
+        </ng-template>
+        <ng-template #body let-row>
+          <tr>
+            <td>{{ row.paymentMethodName }}</td>
+            <td class="text-right">{{ row.expectedAmount | currencyBs }}</td>
+            <td class="text-right">{{ row.declaredAmount | currencyBs }}</td>
+            <td class="text-right font-bold" [class.text-red-500]="row.difference < 0" [class.text-green-600]="row.difference > 0">
+              {{ row.difference > 0 ? '+' : '' }}{{ row.difference | currencyBs }}
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #footer>
+          <tr>
+            <td colspan="3" class="text-right">Diferencia total</td>
+            <td class="text-right font-bold" [class.text-red-500]="totalDifference() < 0" [class.text-green-600]="totalDifference() > 0">
+              {{ totalDifference() > 0 ? '+' : '' }}{{ totalDifference() | currencyBs }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      @if (s.closingNote) {
+        <p class="lynch-700"><i class="pi pi-comment mr-2"></i>{{ s.closingNote }}</p>
+      }
+    }
+
+    <div class="grid mt-2">
+      @for (tile of [
+        { label: 'Apertura', value: s.openingAmount },
+        { label: 'Ventas', value: s.salesTotal },
+        { label: 'Devoluciones', value: s.refundsTotal },
+        { label: 'Ingresos', value: s.incomeTotal },
+        { label: 'Egresos', value: s.expenseTotal }
+      ]; track tile.label) {
+        <div class="col-6 md:col">
+          <div class="lynch-600 text-sm">{{ tile.label }}</div>
+          <div class="font-bold">{{ tile.value | currencyBs }}</div>
+        </div>
+      }
+    </div>
+
+    <h4 class="mb-2 lynch-900">Movimientos</h4>
+    <p-table [value]="s.movements" [scrollable]="true" scrollHeight="18rem" styleClass="p-datatable-sm">
+      <ng-template #header>
+        <tr><th>Fecha</th><th>Tipo</th><th>Descripción</th><th>Medio</th><th class="text-right">Importe</th></tr>
+      </ng-template>
+      <ng-template #body let-m>
+        <tr>
+          <td class="white-space-nowrap">{{ m.createdAt | formatDateWhitHour }}</td>
+          <td>{{ m.typeLabel }}</td>
+          <td>{{ m.description }}</td>
+          <td>{{ m.paymentMethodName ?? 'Efectivo' }}</td>
+          <td class="text-right white-space-nowrap" [class.text-red-500]="isOutflow(m.type)">
+            {{ isOutflow(m.type) ? '- ' : '' }}{{ m.amount | currencyBs }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  } @else {
+    <div class="text-center p-5"><i class="pi pi-spin pi-spinner text-3xl text-primary"></i></div>
+  }
+</p-dialog>

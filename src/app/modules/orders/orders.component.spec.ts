@@ -11,7 +11,8 @@ import { HelpersService } from '@core/services/helpers.service';
 import { LoginService } from '@core/services/login.service';
 import { OrderService } from '@core/services/order.service';
 import { OrderWsService } from '@core/services/order-ws.service';
-import { OrdersComponent, toIsoDate } from './orders.component';
+import { OrdersComponent } from './orders.component';
+import { toIsoDate } from '@core/utils/dates';
 
 const order = (id: number, status: ORDER_STATUS): OrderBoard => ({
   id, code: id, codeLabel: `#00${id}`, serviceType: SERVICE_TYPE.TAKEAWAY, serviceTypeLabel: 'Para llevar',

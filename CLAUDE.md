@@ -17,6 +17,9 @@ Guía para Claude Code en este repositorio. Frontend del sistema de pedidos de l
 > **Etapa 4:** `core/services/order-ws.service.ts` (STOMP/SockJS, conectado desde el header al iniciar sesión,
 > resync + dedupe por versión), `core/services/order.service.ts` (REST), `modules/kitchen` (tablero con
 > `kitchen-card`, sonido, demoras por parámetro) y `modules/orders` (En curso / Historial, detalle y cancelación).
+> **Etapa 5:** `modules/cash-register` con pestañas Mi caja / Historial, `modal-close` (arqueo con diferencia en
+> vivo, advertencia de pedidos sin entregar, nota obligatoria si el ADMIN cierra la caja de otro, 409 → recarga el
+> esperado conservando lo contado) y `modal-session-detail`. `core/utils/dates.ts` (`toIsoDate`).
 > `@stomp/stompjs` + `sockjs-client` instalados (polyfill `global` en `src/polyfills.ts`, igual que la referencia).
 > Las etapas se ejecutan **solo con aprobación explícita** del usuario
 > (plan: `../cdr-backend/docs/plans/001-arquitectura-inicial.md` §8).

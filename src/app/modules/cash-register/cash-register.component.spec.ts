@@ -9,6 +9,10 @@ import { CashSession } from '@core/models/cash-session';
 import { CashSessionService } from '@core/services/cash-session.service';
 import { HelpersService } from '@core/services/helpers.service';
 import { CashRegisterComponent } from './cash-register.component';
+import { signal } from '@angular/core';
+import { ROLES_CODE_SYSTEM } from '@core/enums/roles';
+import { LoginService } from '@core/services/login.service';
+import { UserService } from '@modules/user/services/user.service';
 
 const session = { id: 3, openingAmount: 100, expectedCash: 100, movements: [], salesByMethod: [] } as unknown as CashSession;
 
@@ -52,26 +56,38 @@ describe('CashSessionService', () => {
 
 describe('CashRegisterComponent', () => {
   let component: CashRegisterComponent;
-  let cash: { refresh: Mock; open: Mock; registerMovement: Mock };
+  let cash: { refresh: Mock; open: Mock; registerMovement: Mock; getOpenSessions: Mock; getPageable: Mock };
   let helpers: { messageNotification: Mock };
   let modal: { open: Mock; close: Mock };
+  const roles = signal<ROLES_CODE_SYSTEM[]>([ROLES_CODE_SYSTEM.CASHIER]);
+  let modalClose: { open: Mock };
+  let modalDetail: { open: Mock; show: Mock };
 
   beforeEach(() => {
     cash = {
       refresh: vi.fn().mockReturnValue(of(null)),
+      getOpenSessions: vi.fn().mockReturnValue(of([{ id: 8, userId: 9 }, { id: 3, userId: 4 }])),
+      getPageable: vi.fn().mockReturnValue(of({ content: [], totalElements: 0 })),
       open: vi.fn().mockReturnValue(of(session)),
       registerMovement: vi.fn().mockReturnValue(of(session)),
     };
     helpers = { messageNotification: vi.fn() };
     modal = { open: vi.fn(), close: vi.fn() };
+    modalClose = { open: vi.fn() };
+    modalDetail = { open: vi.fn(), show: vi.fn() };
+    roles.set([ROLES_CODE_SYSTEM.CASHIER]);
     TestBed.configureTestingModule({
       providers: [
         { provide: CashSessionService, useValue: cash },
         { provide: HelpersService, useValue: helpers },
+        { provide: LoginService, useValue: { rolesUser: roles, userId: signal(4) } },
+        { provide: UserService, useValue: { getAll: vi.fn().mockReturnValue(of([{ id: 4, fullName: 'María Caja', username: 'maria.caja' }])) } },
       ]
     });
     component = TestBed.runInInjectionContext(() => new CashRegisterComponent());
     (component as unknown as Record<string, unknown>)['modalMovement'] = () => modal;
+    (component as unknown as Record<string, unknown>)['modalClose'] = () => modalClose;
+    (component as unknown as Record<string, unknown>)['modalDetail'] = () => modalDetail;
   });
 
   it('no abre la caja sin monto de apertura', () => {
@@ -98,5 +114,26 @@ describe('CashRegisterComponent', () => {
     expect(component.isOutflow(CASH_MOVEMENT_TYPE.REFUND)).toBe(true);
     expect(component.isOutflow(CASH_MOVEMENT_TYPE.SALE)).toBe(false);
     expect(component.isOpening(CASH_MOVEMENT_TYPE.OPENING)).toBe(true);
+  });
+
+  it('cerrar caja abre el arqueo de esa sesión y al terminar muestra el detalle', () => {
+    component.startClose(3);
+    expect(modalClose.open).toHaveBeenCalledWith(3);
+    component.onClosed(session);
+    expect(modalDetail.show).toHaveBeenCalledWith(session);
+  });
+
+  it('el ADMIN carga las cajas abiertas de OTROS usuarios', () => {
+    roles.set([ROLES_CODE_SYSTEM.ADMIN]);
+    component.ngOnInit();
+    expect(component.otherOpenSessions().map(s => s.id)).toEqual([8]);
+    expect(component.users()).toEqual([{ id: 4, name: 'María Caja (maria.caja)' }]);
+  });
+
+  it('el CAJERO no envía filtro de usuario en el historial', () => {
+    component.formFilter.setValue({ dates: [new Date(2026, 10, 1), new Date(2026, 10, 11)], status: 'CLOSED', userId: 9 });
+    expect(component.buildFilter()).toEqual({ dateFrom: '2026-11-01', dateTo: '2026-11-11', status: 'CLOSED', userId: null });
+    component.loadHistory({ first: 10, rows: 10 });
+    expect(cash.getPageable).toHaveBeenCalledWith(1, 10, expect.any(Object));
   });
 });

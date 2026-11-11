@@ -15,19 +15,11 @@ import { OrderService } from '@core/services/order.service';
 import { OrderWsService } from '@core/services/order-ws.service';
 import { TickService } from '@core/services/tick.service';
 import { elapsedMinutes, formatElapsed } from '@core/utils/elapsed';
+import { toIsoDate } from '@core/utils/dates';
 import { ConnectionStatusComponent } from '@shared/components/connection-status/connection-status.component';
 import { PrimeModules } from '@shared/prime-components/prime-components.module';
 import { ICancelRequest, ICancelTarget, ModalCancelComponent } from './components/modal-cancel/modal-cancel.component';
 import { ModalOrderDetailComponent } from './components/modal-order-detail/modal-order-detail.component';
-
-/** Formatea un Date como fecha de negocio 'YYYY-MM-DD' (hora local del navegador). */
-export function toIsoDate(date: Date | null): string | null {
-  if (!date) {
-    return null;
-  }
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
 
 /**
  * Pedidos: "En curso" en vivo (entregar / cancelar) e "Historial" paginado con filtros y detalle.
