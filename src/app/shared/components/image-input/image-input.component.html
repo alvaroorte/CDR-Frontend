@@ -1,0 +1,20 @@
+<div class="flex align-items-center gap-3">
+  <div class="border-round-xl sombra-black surface-100 flex align-items-center justify-content-center overflow-hidden"
+       style="width: 6rem; height: 6rem;">
+    @if (previewSrc; as src) {
+      <img [src]="src" alt="Vista previa" class="w-full h-full" style="object-fit: cover;">
+    } @else {
+      <img src="/assets/images/no_image.avif" alt="Sin imagen" class="w-full h-full" style="object-fit: cover;">
+    }
+  </div>
+  <div class="flex flex-column gap-2">
+    <input #fileInput type="file" [id]="inputId()" class="hidden" [accept]="accept" (change)="onFileSelected($event)">
+    <p-button icon="pi pi-upload" [label]="labels.chooseImage" size="small" severity="info" [rounded]="true"
+      styleClass="shadow-3 hover-info" [disabled]="disabled()" (onClick)="fileInput.click()" />
+    @if (value()) {
+      <p-button icon="pi pi-times" [label]="labels.removeImage" size="small" severity="secondary" [rounded]="true"
+        styleClass="shadow-3" [disabled]="disabled()" (onClick)="clear()" />
+    }
+    <small class="lynch-600">JPG, PNG, WEBP o GIF · máx. 1 MB</small>
+  </div>
+</div>

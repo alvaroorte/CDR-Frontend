@@ -1,0 +1,72 @@
+<div class="container mx-3 mb-0 pb-4">
+  <p-fieldset styleClass="sombra-black">
+    <ng-template #header>
+      <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
+        <h1 class="text-white text-2xl">{{ labels.pos }} <span class="text-sm"> Registro de pedidos en mostrador</span></h1>
+      </div>
+    </ng-template>
+
+    @if (cashSessionService.loaded() && !cashSessionService.isOpen()) {
+      <div class="sombra-black border-round-xl surface-0 p-3 mb-3 flex flex-wrap align-items-center justify-content-between gap-2 fadeindown animation-duration-400">
+        <span class="text-lg lynch-800"><i class="pi pi-lock mr-2 text-orange-500"></i>{{ messages.cashRegisterRequired }}</span>
+        <p-button [label]="labels.openCashRegister" icon="pi pi-wallet" [rounded]="true" routerLink="/cash-register" styleClass="sombra-black" />
+      </div>
+    }
+
+    <div class="grid">
+      <div class="col-12 lg:col-8 fadeindown animation-duration-400">
+        <div class="sombra-black border-round-xl p-3 surface-0">
+          @if (catalog(); as c) {
+            @if (c.categories.length > 0) {
+              <app-product-grid [categories]="c.categories" (productSelected)="onProductSelected($event)" />
+            } @else {
+              <div class="lynch-600 text-center p-5">No hay productos activos en el catálogo.</div>
+            }
+          } @else {
+            <div class="grid">
+              @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+                <div class="col-6 md:col-4"><p-skeleton height="12rem" borderRadius="1rem" /></div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      <div class="col-12 lg:col-4 fadeindown animation-duration-500">
+        <div class="pos-cart-sticky">
+          <app-cart-panel [discountRules]="catalog()?.discountRules ?? null" [canDiscount]="canDiscount()" [isAdmin]="isAdmin()"
+            (continue)="openCheckout()" />
+        </div>
+      </div>
+    </div>
+  </p-fieldset>
+</div>
+
+<app-modal-product-config (added)="onProductConfigured($event)" />
+
+<app-checkout [(visible)]="checkoutVisible"
+  [paymentMethods]="catalog()?.paymentMethods ?? []"
+  [markers]="markers()"
+  [previewTotal]="cart.total()"
+  [quote]="quote()"
+  [saving]="saving()"
+  (refreshMarkers)="loadMarkers()"
+  (requestQuote)="requestQuote()"
+  (confirmOrder)="confirmOrder($event)" />
+
+<p-dialog [(visible)]="createdVisible" [modal]="true" [closable]="true" appendTo="body" styleClass="w-11 md:w-6 lg:w-4"
+  [header]="labels.orderRegistered" (onHide)="newOrder()">
+  @if (createdOrder(); as order) {
+    <div class="text-center">
+      <div class="lynch-600 text-lg">{{ labels.code }}</div>
+      <div class="pos-order-code text-primary font-bold">{{ order.codeLabel }}</div>
+      @if (order.tableMarkerNumber !== null) {
+        <p-tag [value]="labels.tableMarker + ' ' + order.tableMarkerNumber" severity="success" styleClass="text-xl px-3 py-2 mt-2" />
+      } @else {
+        <p-tag [value]="order.serviceTypeLabel + (order.customerName ? ' · ' + order.customerName : '')" severity="info" styleClass="text-xl px-3 py-2 mt-2" />
+      }
+      <div class="text-2xl font-bold mt-3">{{ order.total | currencyBs }}</div>
+      <p-button [label]="labels.newOrder" icon="pi pi-plus" [rounded]="true" size="large" styleClass="mt-4 sombra-black pos-touch"
+        (click)="newOrder()" />
+    </div>
+  }
+</p-dialog>

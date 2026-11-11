@@ -1,0 +1,31 @@
+<div class="container mx-3 mb-0 pb-4">
+  <p-fieldset styleClass="sombra-black">
+    <ng-template pTemplate="header">
+      <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
+        <h1 class="text-white text-2xl">Medios de pago <span class="text-sm"> Gestión de medios de pago</span> </h1>
+      </div>
+    </ng-template>
+    <div class="grid">
+      <div class="col-12 fadeindown animation-duration-400">
+        <div class="sombra-black border-round-xl p-2 surface-0">
+          <app-toolbar-common
+            tooltipCreate="Crear medio de pago"
+            tooltipDelete="Desactivar medio de pago"
+            iconDelete="pi-ban"
+            [serviceGeneric]="paymentMethodService"
+            [object]="paymentMethodSelected()"/>
+          <app-modal-form />
+          <app-modal-delete [serviceGeneric]="paymentMethodService"
+            [objectId]="paymentMethodSelected()?.id" />
+          <app-generic-table [titleTable]="titleTable"
+            [items]="paymentMethods()"
+            [tableColumnDefinitions]="tableColumnPaymentMethodDefinitions"
+            (onSelection)="setPaymentMethod($event)"
+            (requestData)="getPaymentMethods()"
+            (selfEmitter)="onTableSelfEmision($event)"
+           />
+        </div>
+      </div>
+    </div>
+  </p-fieldset>
+</div>

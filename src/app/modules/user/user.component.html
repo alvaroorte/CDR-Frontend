@@ -1,0 +1,42 @@
+<div class="container mx-3 mb-0 pb-4">
+  <p-fieldset styleClass="sombra-black">
+    <ng-template pTemplate="header">
+      <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
+        <h1 class="text-white text-2xl">Usuarios <span class="text-sm"> Gestión del personal y sus roles</span> </h1>
+      </div>
+    </ng-template>
+    <div class="grid">
+      <div class="col-12 fadeindown animation-duration-400">
+        <div class="sombra-black border-round-xl p-2 surface-0">
+          <app-toolbar-common
+            tooltipCreate="Crear usuario"
+            tooltipDelete="Desactivar usuario"
+            iconDelete="pi-ban"
+            [serviceGeneric]="userService"
+            [object]="userSelected()">
+            <p-button icon="pi pi-lock"
+              pTooltip="Restablecer contraseña"
+              size="small"
+              severity="help"
+              [rounded]="true"
+              styleClass="mr-2 sombra-black hover-help fadeinup animation-ease-in-out animation-duration-300"
+              (click)="openResetPassword()"
+             />
+          </app-toolbar-common>
+          <app-modal-form />
+          <app-modal-password />
+          <app-modal-delete [serviceGeneric]="userService"
+            [objectId]="userSelected()?.id"
+            confirmMessage="¿Está seguro de desactivar al usuario seleccionado? Se cerrarán sus sesiones abiertas." />
+          <app-generic-table [titleTable]="titleTable"
+            [items]="users()"
+            [tableColumnDefinitions]="tableColumnUserDefinitions"
+            (onSelection)="setUser($event)"
+            (requestData)="getUsers()"
+            (selfEmitter)="onTableSelfEmision($event)"
+           />
+        </div>
+      </div>
+    </div>
+  </p-fieldset>
+</div>

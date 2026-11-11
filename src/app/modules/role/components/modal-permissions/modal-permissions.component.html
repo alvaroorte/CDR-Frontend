@@ -1,0 +1,52 @@
+<p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-11 lg:w-8" [header]="labels.assignPermissions + ': ' + (role()?.name ?? '')" [modal]="true" appendTo="body">
+  <ng-template pTemplate="content">
+    @if (role()?.code === 'ADMIN') {
+      <p-message severity="info" styleClass="mb-3 w-full">
+        El rol Administrador tiene acceso a todo el sistema sin necesidad de permisos explícitos.
+      </p-message>
+    }
+    <p-table #dt
+      [value]="permissions()"
+      [(selection)]="selectedPermissions"
+      dataKey="id"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [globalFilterFields]="['httpMethod', 'url', 'code']"
+      styleClass="p-datatable-sm">
+      <ng-template pTemplate="caption">
+        <div class="flex justify-content-between align-items-center">
+          <span class="font-bold">{{ selectedPermissions.length }} de {{ permissions().length }} seleccionados</span>
+          <p-iconfield>
+            <p-inputicon styleClass="pi pi-search" />
+            <input pInputText type="text" [placeholder]="placeholders.search" (input)="filterGlobal(dt, $event)" />
+          </p-iconfield>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
+          <th pSortableColumn="httpMethod">{{ labels.method }} <p-sortIcon field="httpMethod" /></th>
+          <th pSortableColumn="url">{{ labels.url }} <p-sortIcon field="url" /></th>
+          <th>{{ labels.code }}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-permission>
+        <tr>
+          <td><p-tableCheckbox [value]="permission" /></td>
+          <td><p-tag [value]="permission.httpMethod" severity="secondary" /></td>
+          <td>{{ permission.url }}</td>
+          <td class="lynch-600">{{ permission.code }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <div class="p-2 pb-3">
+      <button type="button" pButton pRipple [label]="labels.cancel" icon="pi pi-times" severity="secondary"
+        [rounded]="true" size="small" class="mr-2 shadow-3" (click)="hideModal()"></button>
+      <button type="button" pButton pRipple [label]="labels.save" icon="pi pi-check" [rounded]="true"
+        size="small" class="mr-2 shadow-3 hover-primary" (click)="save()"></button>
+    </div>
+  </ng-template>
+</p-dialog>

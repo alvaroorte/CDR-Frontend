@@ -1,0 +1,162 @@
+<p-toolbar>
+  <ng-template pTemplate="left">
+    <h3>{{ titleTable() }}</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="flex gap-1 flex-wrap justify-content-end align-items-baseline">
+      <ng-content select="[rightToolbarTemplate]"></ng-content>
+      <p-iconfield styleClass="ml-auto">
+        <p-inputicon styleClass="pi pi-search"/>
+        <input
+          type="text"
+          pInputText
+          class="mr-2"
+          (input)="onGlobalFilter($event)"
+          [placeholder]="placeholders.searchInCurrentView"
+          [pTooltip]="tooltipFilterFields()"
+          tooltipPosition="top"
+          />
+        </p-iconfield>
+
+        <p-button
+          type="button"
+          icon="pi pi-sync"
+          [outlined]="true"
+          severity="secondary"
+          (click)="reload()"
+          [pTooltip]="tooltips.reload"
+          tooltipPosition="top"
+        ></p-button>
+      </div>
+    </ng-template>
+  </p-toolbar>
+  <p-table
+    #primeTable
+    [value]="items()"
+    [dataKey]="tableProps().dataKey"
+    [sortField]="tableProps().sortField"
+    [sortOrder]="tableProps().sortOrder"
+    [defaultSortOrder]="-1"
+    [reorderableColumns]="true"
+    selectionMode="single"
+    [(selection)]="selectedItem"
+    [rows]="tableProps().rows"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="tableProps().rowsPerPageOptions"
+    [rowHover]="true"
+    [paginator]="true"
+    responsiveLayout="scroll"
+    [globalFilterFields]="tableGlobalFilterFields()"
+    [currentPageReportTemplate]="(primeTable.first | formatCurrentPageReportTemplate : primeTable.totalRecords : primeTable.rows)"
+    (onRowSelect)="onRowSelect($event)"
+    (onRowUnselect)="onRowUnselect()"
+    (onFilter)="onRowUnselect()"
+    (onPage)="onRowUnselect()"
+    [columns]="tableColumnDefinitions()"
+    [rowTrackBy]="tableProps().rowTrackBy">
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        @for (column of tableColumnDefinitions(); track column.field) {
+          <th
+            pReorderableColumn
+            scope="col"
+            [pSortableColumn]="column.hideSortIcon? undefined : column.field">
+            {{ column.header }}
+            @if (!column.hideSortIcon) {
+              <p-sortIcon [field]="column.field" />
+            }
+          </th>
+        }
+      </tr>
+    </ng-template>
+    <ng-template
+      pTemplate="body"
+      let-row
+      let-rowIndex="rowIndex"
+      let-editing="editing"
+      let-expanded="expanded">
+      <tr [pSelectableRow]="row">
+        @for (column of tableColumnDefinitions(); track column.field) {
+          <td>
+            @switch (column.columnType) {
+              @case (tableColumnFormatTypes.NUMBER) {
+                <div [class]="column.align">
+                  {{ row[column.field] }}
+                </div>
+              }
+              @case (tableColumnFormatTypes.BOOLEAN) {
+                <div [ngClass]="[
+                    column.align,
+                    row[column.field]? 'text-green-500': 'text-red-500'
+                  ]">
+                  {{ row[column.field] | booleanColumnFormat: column.booleanColumnFormatConfig }}
+                </div>
+              }
+              @case (tableColumnFormatTypes.STATUS) {
+                <div [class]="column.align">
+                  <span
+                    [ngClass]="[row[column.field]? 'text-green-500': 'text-red-500']">
+                    {{ row[column.field]? 'Activo': 'Inactivo' }}
+                  </span>
+                </div>
+              }
+              @case (tableColumnFormatTypes.DATE) {
+                <div [class]="column.align">
+                  {{ row[column.field] | formatDate }}
+                </div>
+              }
+              @case (tableColumnFormatTypes.DATETIME) {
+                <div [class]="column.align">
+                  {{ row[column.field] | formatDateWhitHour }}
+                </div>
+              }
+              @case (tableColumnFormatTypes.AMOUNT) {
+                <div [class]="column.align">
+                  {{ row[column.field] | formatFieldAmount }}
+                </div>
+              }
+              @case (tableColumnFormatTypes.COLOR) {
+                <div class="text-center">
+                  <p-badge class="shadow-3" badgeSize="large" [style]="{'background-color': row[column.field]}" />
+                </div>
+              }
+              @case (tableColumnFormatTypes.IMAGE) {
+                <div class="flex justify-content-center">
+                  @if (row[column.field]) {
+                    <p-image
+                      [src]="'data:image/png;base64,' + row[column.field]"
+                      [alt]="labels.image"
+                      width="60"
+                      height="50"
+                      imageClass="border-round-xl sombra-black"
+                      [preview]="true"
+                      appendTo="body" />
+                  } @else {
+                    <img class="border-round-xl sombra-black" width="50" height="40" src="/assets/images/no_image.avif" [alt]="labels.withOutImage">
+                  }
+                </div>
+              }
+              @default {
+                <div
+                  [class]="column.align">
+                  {{row[column.field]}}
+                </div>
+              }
+            }
+          </td>
+        }
+      </tr>
+    
+  </ng-template>
+
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td [attr.colspan]="tableColumnDefinitions().length">{{ messages.emptyMessage }}</td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="loadingbody">
+    <tr>
+      <td [attr.colspan]="tableColumnDefinitions().length">{{ messages.emptyMessage }}</td>
+    </tr>
+  </ng-template>
+</p-table>

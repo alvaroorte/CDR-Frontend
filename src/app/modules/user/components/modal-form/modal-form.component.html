@@ -1,0 +1,95 @@
+<form [formGroup]="formUser">
+  <div class="grid">
+    <div class="col-12">
+      <p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-10 md:w-8 lg:w-5" [header]="titleForm" [modal]="true" class="p-fluid" appendTo="body">
+        <ng-template pTemplate="content">
+
+          <app-message-required-field />
+
+          <div class="p-fluid p-formgrid grid">
+            <div class="form-group field col-12 md:col-6 mt-5">
+              <p-floatlabel>
+                <input type="text" pInputText id="username" formControlName="username" autocomplete="off" class="w-full" />
+                <label htmlFor="username" class="text-lg font-bold text-800 required-field"> {{ labels.username }} </label>
+              </p-floatlabel>
+              @if (formUser.controls.username.touched && formUser.controls.username.hasError('required')) {
+                <small class="p-error block mt-2">{{ messages.requiredField }}</small>
+              }
+              @if (formUser.controls.username.hasError('pattern')) {
+                <small class="p-error block mt-2">{{ messages.usernamePattern }}</small>
+              }
+            </div>
+
+            <div class="form-group field col-12 md:col-6 mt-5">
+              <p-floatlabel>
+                <input type="text" pInputText id="fullName" formControlName="fullName" class="w-full" />
+                <label htmlFor="fullName" class="text-lg font-bold text-800 required-field"> {{ labels.fullName }} </label>
+              </p-floatlabel>
+              @if (formUser.controls.fullName.touched && formUser.controls.fullName.hasError('required')) {
+                <small class="p-error block mt-2">{{ messages.requiredField }}</small>
+              }
+              @if (formUser.controls.fullName.hasError('minlength')) {
+                <small class="p-error block mt-2">{{ messages.requiredMinLengthCode }}</small>
+              }
+              @if (formUser.controls.fullName.hasError('noSpace')) {
+                <small class="p-error block mt-2">{{ messages.noOnlySpace }}</small>
+              }
+            </div>
+
+            <div class="form-group field col-12 md:col-6 mt-4">
+              <p-floatlabel>
+                <input type="email" pInputText id="email" formControlName="email" class="w-full" />
+                <label htmlFor="email" class="text-lg font-bold text-800"> {{ labels.email }} </label>
+              </p-floatlabel>
+              @if (formUser.controls.email.hasError('email')) {
+                <small class="p-error block mt-2">{{ messages.emailInvalid }}</small>
+              }
+            </div>
+
+            @if (userId === 0) {
+              <div class="form-group field col-12 md:col-6 mt-4">
+                <p-floatlabel>
+                  <p-password inputId="password" formControlName="password" [toggleMask]="true" [feedback]="false"
+                    autocomplete="new-password" class="w-full" styleClass="w-full" />
+                  <label for="password" class="text-lg font-bold text-800 required-field"> {{ labels.password }} </label>
+                </p-floatlabel>
+                @if (formUser.controls.password.touched && formUser.controls.password.hasError('required')) {
+                  <small class="p-error block mt-2">{{ messages.requiredField }}</small>
+                }
+                @if (formUser.controls.password.hasError('minlength')) {
+                  <small class="p-error block mt-2">{{ messages.passwordMinLength }}</small>
+                }
+              </div>
+            }
+
+            <div class="form-group field col-12 mt-4">
+              <p-floatlabel>
+                <p-multiselect inputId="roleIds" formControlName="roleIds" [options]="roles" optionLabel="name" optionValue="id"
+                  display="chip" appendTo="body" class="w-full" />
+                <label for="roleIds" class="text-lg font-bold text-800 required-field"> {{ labels.roles }} </label>
+              </p-floatlabel>
+              @if (formUser.controls.roleIds.touched && formUser.controls.roleIds.hasError('required')) {
+                <small class="p-error block mt-2">{{ messages.selectAtLeastOneRole }}</small>
+              }
+            </div>
+
+            <div class="form-group field col-12 mt-3 flex align-items-center gap-2">
+              <p-toggleswitch inputId="active" formControlName="active" />
+              <label for="active" class="text-lg font-bold text-800"> {{ labels.active }} </label>
+            </div>
+          </div>
+
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <div class="p-2 pb-3">
+            <input type="hidden" pInputText id="id" formControlName="id"/>
+            <button type="button" pButton pRipple [label]="labels.cancel" icon="pi pi-times" severity="secondary"
+              [rounded]="true" size="small" class="mr-2 shadow-3" (click)="hideModal()"></button>
+            <button type="button" pButton pRipple [label]="labels.save" icon="pi pi-check" [rounded]="true"
+              size="small" class="mr-2 shadow-3 hover-primary" (click)="save()" [disabled]="formUser.invalid"></button>
+          </div>
+        </ng-template>
+      </p-dialog>
+    </div>
+  </div>
+</form>

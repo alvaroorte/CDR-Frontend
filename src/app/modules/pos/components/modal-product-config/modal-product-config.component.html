@@ -1,0 +1,45 @@
+<p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-11 md:w-8 lg:w-5" [header]="product()?.name ?? ''"
+  [modal]="true" appendTo="body" [dismissableMask]="true">
+  @if (product(); as p) {
+    <form [formGroup]="formConfig" (ngSubmit)="add()">
+      <div class="flex justify-content-between align-items-center mb-3">
+        <span class="lynch-700">{{ p.description }}</span>
+        <span class="text-primary font-bold text-xl">{{ p.price | currencyBs }}</span>
+      </div>
+
+      <label for="quantity" class="text-lg font-bold text-800 block mb-2">{{ labels.quantity }}</label>
+      <p-inputnumber inputId="quantity" formControlName="quantity" [showButtons]="true" buttonLayout="horizontal"
+        [min]="1" [max]="999" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"
+        inputStyleClass="text-center text-xl font-bold w-5rem" styleClass="pos-touch" />
+
+      @if (p.addons.length > 0) {
+        <div class="text-lg font-bold text-800 mt-4 mb-2">{{ labels.addons }}</div>
+        <div class="grid">
+          @for (addon of p.addons; track addon.id) {
+            <div class="col-12 md:col-6">
+              <label class="pos-addon-option sombra-black border-round-lg flex align-items-center gap-2 p-3 cursor-pointer surface-0">
+                <p-checkbox formControlName="addonIds" [value]="addon.id" [inputId]="'addon-' + addon.id" />
+                <span class="flex-grow-1">{{ addon.name }}</span>
+                <span class="font-semibold lynch-700">+ {{ addon.price | currencyBs }}</span>
+              </label>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="mt-4">
+        <label for="notes" class="text-lg font-bold text-800 block mb-2">{{ labels.notes }}</label>
+        <textarea pTextarea id="notes" formControlName="notes" rows="2" class="w-full" [placeholder]="labels.notesPlaceholder"></textarea>
+        @if (formConfig.controls.notes.hasError('maxlength')) {
+          <small class="p-error block mt-2">{{ messages.maxNumberField(255) }}</small>
+        }
+      </div>
+
+      <div class="flex justify-content-end gap-2 mt-4">
+        <p-button [label]="labels.cancel" severity="secondary" [rounded]="true" [outlined]="true" (click)="openModal = false" />
+        <p-button type="submit" [label]="labels.addToCart + ' · ' + (lineTotal() | currencyBs)" icon="pi pi-cart-plus"
+          [rounded]="true" size="large" styleClass="sombra-black" [disabled]="formConfig.invalid" />
+      </div>
+    </form>
+  }
+</p-dialog>

@@ -45,6 +45,13 @@
     }
   </nav>
   <div class="flex-wrap flex align-items-center justify-content-center px-2">
+    @if (showCashStatus() && cashSessionService.loaded()) {
+      <a routerLink="/cash-register" class="no-underline mr-3">
+        <p-tag [value]="cashSessionService.isOpen() ? labels.cashOpen : labels.cashClosed"
+          [severity]="cashSessionService.isOpen() ? 'success' : 'warn'"
+          [icon]="cashSessionService.isOpen() ? 'pi pi-lock-open' : 'pi pi-lock'" />
+      </a>
+    }
     <p-toggleswitch inputId="themeSelection"
       [(ngModel)]="themeSelection"
       [pTooltip]="labelMode"

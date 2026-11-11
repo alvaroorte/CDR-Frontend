@@ -4,8 +4,20 @@ Guía para Claude Code en este repositorio. Frontend del sistema de pedidos de l
 **Replica arquitectura e identidad visual de `../ticket-frontend`** (proyecto de referencia,
 **solo lectura — nunca modificarlo**).
 
-> **Estado:** Etapa 1 completada (proyecto base, temas, layout, login, interceptores, guard).
+> **Estado:** Etapas 1 (proyecto base, temas, layout, login, interceptores, guard) y 2 (CRUDs de
+> administración) completadas. **Referencia local de CRUD: `src/app/modules/category`** (patrón
+> `schedule` de la referencia ya adaptado: forms tipados, Vitest, strictNullChecks).
+> Carpetas de módulo en **singular** (`category`, `product`, `table-marker`...) y rutas en **plural**
+> (`categories`, `products`, `table-markers`...), como indica la skill `angular-crud`.
 > Nombre comercial **Ciudad de Refugio** (logo pendiente: hoy se muestra icono + texto).
+> **Etapa 3:** `modules/pos` (contenedor + `product-grid`, `modal-product-config`, `cart-panel`,
+> `checkout` con `p-stepper`; `CartService` y `PosService`) y `modules/cash-register` (apertura, totales,
+> movimientos). `CashSessionService` en `core/services` (estado compartido POS / caja / header).
+> Tras el login ADMIN y CAJERO van a `/pos`; COCINA a `/kitchen`.
+> **Etapa 4:** `core/services/order-ws.service.ts` (STOMP/SockJS, conectado desde el header al iniciar sesión,
+> resync + dedupe por versión), `core/services/order.service.ts` (REST), `modules/kitchen` (tablero con
+> `kitchen-card`, sonido, demoras por parámetro) y `modules/orders` (En curso / Historial, detalle y cancelación).
+> `@stomp/stompjs` + `sockjs-client` instalados (polyfill `global` en `src/polyfills.ts`, igual que la referencia).
 > Las etapas se ejecutan **solo con aprobación explícita** del usuario
 > (plan: `../cdr-backend/docs/plans/001-arquitectura-inicial.md` §8).
 
@@ -97,3 +109,12 @@ npm run build:dev | build:qa | build:prod
 | `LoginService` con `EventEmitter` y empresa | Signals (`isLoggedIn`, `fullName`, `rolesUser`) + `GET /users/me` |
 | `es.ts` tipado con ngx-translate (`fileSizeTypes` string, `firstDayOfWeek` "0") | Tipo `Translation` de PrimeNG con valores corregidos |
 | Logos ENDESYC | Icono + nombre en texto (logo de marca pendiente) |
+| `app-input-file` sube archivos a `/media` | `app-image-input` (ControlValueAccessor): imagen base64 con vista previa, valida tipo y 1 MB |
+| `app-modal-delete` elimina | Desactiva (borrado lógico); textos `confirmMessage` / `successMessage` configurables |
+| Modales extra abiertos con `EventEmitter` del servicio | Registro por signal con `IOpenableModal` (`eventModalPasswordComponent`, `eventModalPermissionsComponent`) |
+| Specs de `generic-table` / `modal-delete` en Jasmine | Reescritos en Vitest con strictNullChecks |
+| `app-stepper` propio | Cobro del POS con `p-stepper` de PrimeNG (`[linear]`), como el modal de sucursales de la referencia | No se copió `app-stepper`; el de PrimeNG cubre el caso |
+| — | `currencyBs` (pipe, "Bs 1.234,50") y `core/utils/money.ts` (`round2` HALF_UP solo de vista previa) | Importes del POS |
+| `MessageWsService` creado en el constructor, sin token | `OrderWsService`: fábrica de cliente inyectable (`STOMP_CLIENT_FACTORY`) para los tests; conexión iniciada por el header | Testeable sin red |
+| Sin `allowedCommonJsDependencies` | `sockjs-client` declarado en `angular.json` | Silencia el aviso de CommonJS del build |
+| Estilos solo de la referencia | Sección `// ===== CDR: POS y caja =====` en `styles/general.scss` con tokens de PrimeNG (claro/oscuro) | Tarjetas, adornos y controles táctiles ≥ 48px |

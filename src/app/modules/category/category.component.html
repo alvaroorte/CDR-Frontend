@@ -1,0 +1,31 @@
+<div class="container mx-3 mb-0 pb-4">
+  <p-fieldset styleClass="sombra-black">
+    <ng-template pTemplate="header">
+      <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
+        <h1 class="text-white text-2xl">Categorías <span class="text-sm"> Gestión de categorías de productos</span> </h1>
+      </div>
+    </ng-template>
+    <div class="grid">
+      <div class="col-12 fadeindown animation-duration-400">
+        <div class="sombra-black border-round-xl p-2 surface-0">
+          <app-toolbar-common
+            tooltipCreate="Crear categoría"
+            tooltipDelete="Desactivar categoría"
+            iconDelete="pi-ban"
+            [serviceGeneric]="categoryService"
+            [object]="categorySelected()"/>
+          <app-modal-form />
+          <app-modal-delete [serviceGeneric]="categoryService"
+            [objectId]="categorySelected()?.id" />
+          <app-generic-table [titleTable]="titleTable"
+            [items]="categories()"
+            [tableColumnDefinitions]="tableColumnCategoryDefinitions"
+            (onSelection)="setCategory($event)"
+            (requestData)="getCategories()"
+            (selfEmitter)="onTableSelfEmision($event)"
+           />
+        </div>
+      </div>
+    </div>
+  </p-fieldset>
+</div>

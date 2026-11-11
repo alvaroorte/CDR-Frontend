@@ -1,0 +1,46 @@
+<div class="container mx-3 mb-0 pb-4">
+  <p-fieldset styleClass="sombra-black">
+    <ng-template pTemplate="header">
+      <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
+        <h1 class="text-white text-2xl">Productos <span class="text-sm"> Gestión del catálogo y disponibilidad</span> </h1>
+      </div>
+    </ng-template>
+    <div class="grid">
+      <div class="col-12 fadeindown animation-duration-400">
+        <div class="sombra-black border-round-xl p-2 surface-0">
+          <app-toolbar-common
+            tooltipCreate="Crear producto"
+            tooltipDelete="Desactivar producto"
+            iconDelete="pi-ban"
+            [showCreate]="isAdmin()"
+            [showEdit]="isAdmin()"
+            [showDelete]="isAdmin()"
+            [serviceGeneric]="productService"
+            [object]="productSelected()">
+            <p-button
+              [icon]="productSelected()?.available === false ? 'pi pi-check-circle' : 'pi pi-times-circle'"
+              [pTooltip]="availabilityTooltip()"
+              size="small"
+              severity="help"
+              [rounded]="true"
+              styleClass="mr-2 sombra-black hover-help fadeinup animation-ease-in-out animation-duration-300"
+              (click)="toggleAvailability()"
+             />
+          </app-toolbar-common>
+          @if (isAdmin()) {
+            <app-modal-form />
+            <app-modal-delete [serviceGeneric]="productService"
+              [objectId]="productSelected()?.id" />
+          }
+          <app-generic-table [titleTable]="titleTable"
+            [items]="products()"
+            [tableColumnDefinitions]="tableColumnProductDefinitions"
+            (onSelection)="setProduct($event)"
+            (requestData)="getProducts()"
+            (selfEmitter)="onTableSelfEmision($event)"
+           />
+        </div>
+      </div>
+    </div>
+  </p-fieldset>
+</div>

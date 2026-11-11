@@ -144,3 +144,172 @@ input.p-password-input {
     padding-top: 0.6rem;
     padding-bottom: 0.6rem;
 }
+// ===== CDR: POS y caja (Etapa 3) =====
+// Controles táctiles >= 48px; colores por tokens de PrimeNG para que funcionen en claro y oscuro.
+.pos-touch .p-button,
+.pos-touch.p-button,
+.pos-touch .p-inputnumber-button {
+    min-height: 48px;
+}
+
+.pos-category-chip {
+    min-height: 48px;
+    border: 2px solid transparent;
+    background: var(--p-content-background);
+    color: var(--p-text-color);
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.pos-category-chip-active {
+    border-color: var(--p-primary-color);
+    background: var(--p-primary-color);
+    color: var(--p-primary-contrast-color);
+}
+
+.pos-category-img {
+    width: 28px;
+    height: 28px;
+    object-fit: cover;
+}
+
+.pos-product-card {
+    border: 1px solid var(--p-content-border-color);
+    cursor: pointer;
+    color: var(--p-text-color);
+    background: var(--p-content-background);
+    display: block;
+}
+
+.pos-product-disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    filter: grayscale(0.8);
+}
+
+.pos-product-image {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.pos-product-tag {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+.pos-cart-sticky {
+    position: sticky;
+    top: 5.5rem;
+}
+
+.pos-cart-lines {
+    max-height: 45vh;
+    overflow-y: auto;
+}
+
+.pos-qty-btn.p-button {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.pos-addon-option {
+    min-height: 48px;
+    border: 1px solid var(--p-content-border-color);
+}
+
+.pos-option-card {
+    min-height: 120px;
+    border: 2px solid var(--p-content-border-color);
+    color: var(--p-text-color);
+    background: var(--p-content-background);
+}
+
+.pos-option-active {
+    border-color: var(--p-primary-color);
+    background: var(--p-highlight-background);
+}
+
+.pos-marker {
+    width: 64px;
+    height: 64px;
+    cursor: pointer;
+    border: 2px solid var(--p-primary-color);
+    background: var(--p-content-background);
+    color: var(--p-primary-color);
+}
+
+.pos-marker-selected {
+    background: var(--p-primary-color);
+    color: var(--p-primary-contrast-color);
+}
+
+.pos-marker-busy {
+    cursor: not-allowed;
+    border-color: var(--p-content-border-color);
+    color: var(--p-text-muted-color);
+    opacity: 0.6;
+}
+
+.pos-order-code {
+    font-size: 4rem;
+    line-height: 1.1;
+}
+
+// ===== CDR: cocina y seguimiento (Etapa 4) =====
+.kitchen-column {
+    background: var(--p-content-hover-background);
+    min-height: 60vh;
+}
+
+.kitchen-card {
+    border-left: 6px solid var(--p-primary-color);
+    color: var(--p-text-color);
+}
+
+.kitchen-ready {
+    border-left-color: var(--p-green-500);
+}
+
+.kitchen-warn {
+    border-left-color: var(--p-yellow-500);
+
+    .kitchen-elapsed { color: var(--p-yellow-600); }
+}
+
+.kitchen-critical {
+    border-left-color: var(--p-red-500);
+    background: color-mix(in srgb, var(--p-red-500) 8%, var(--p-content-background));
+
+    .kitchen-elapsed { color: var(--p-red-500); }
+}
+
+.kitchen-marker {
+    font-size: 3rem;
+}
+
+.kitchen-action.p-button {
+    min-height: 56px;
+    font-size: 1.25rem;
+}
+
+.kitchen-legend {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    vertical-align: middle;
+}
+
+.kitchen-warn-dot { background: var(--p-yellow-500); }
+.kitchen-critical-dot { background: var(--p-red-500); }
+
+.orders-ready-row > td {
+    background: color-mix(in srgb, var(--p-green-500) 10%, transparent);
+}

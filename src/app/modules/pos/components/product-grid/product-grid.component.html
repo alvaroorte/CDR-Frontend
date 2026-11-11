@@ -1,0 +1,49 @@
+<div class="flex flex-wrap gap-2 mb-3">
+  @for (category of categories(); track category.id) {
+    <button type="button"
+      class="pos-category-chip sombra-black border-round-xl flex align-items-center gap-2 px-3 py-2 cursor-pointer"
+      [class.pos-category-chip-active]="category.id === selectedCategoryId()"
+      (click)="selectCategory(category.id)">
+      @if (category.imageBase64) {
+        <img [src]="imageSrc(category.imageBase64)" alt="" class="pos-category-img border-circle" />
+      } @else {
+        <i class="pi pi-th-large"></i>
+      }
+      <span class="font-semibold">{{ category.name }}</span>
+    </button>
+  }
+</div>
+
+<div class="grid">
+  @for (product of products(); track product.id) {
+    <div class="col-6 md:col-4 xl:col-3">
+      <button type="button"
+        class="pos-product-card sombra-black border-round-xl surface-0 w-full h-full p-0 text-left overflow-hidden"
+        [class.zoom-1]="product.available"
+        [class.pos-product-disabled]="!product.available"
+        [disabled]="!product.available"
+        (click)="select(product)">
+        <div class="pos-product-image">
+          <img [src]="imageSrc(product.imageBase64)" [alt]="product.name" />
+          @if (!product.available) {
+            <p-tag [value]="labels.soldOut" severity="danger" class="pos-product-tag" />
+          }
+        </div>
+        <div class="p-3">
+          <div class="font-bold lynch-900 text-lg line-height-2">{{ product.name }}</div>
+          @if (product.description) {
+            <div class="lynch-600 text-sm white-space-nowrap overflow-hidden text-overflow-ellipsis">{{ product.description }}</div>
+          }
+          <div class="flex justify-content-between align-items-center mt-2">
+            <span class="text-primary font-bold text-lg">{{ product.price | currencyBs }}</span>
+            @if (product.addons.length > 0) {
+              <i class="pi pi-plus-circle lynch-500" [pTooltip]="labels.addons"></i>
+            }
+          </div>
+        </div>
+      </button>
+    </div>
+  } @empty {
+    <div class="col-12 lynch-600 p-4 text-center">No hay productos en esta categoría.</div>
+  }
+</div>

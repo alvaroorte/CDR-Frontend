@@ -1,0 +1,226 @@
+<p-dialog [focusOnShow]="false" [visible]="visible()" (visibleChange)="visible.set($event)" styleClass="w-11 lg:w-8 xl:w-6"
+  [header]="labels.confirmOrder" [modal]="true" appendTo="body" [closable]="!saving()">
+  <form [formGroup]="formCheckout">
+    <p-stepper [value]="step()" [linear]="true">
+      <p-step-list>
+        <p-step [value]="STEP.SERVICE">{{ labels.serviceType }}</p-step>
+        <p-step [value]="STEP.PAYMENT">{{ labels.payment }}</p-step>
+        <p-step [value]="STEP.SUMMARY">{{ labels.summary }}</p-step>
+      </p-step-list>
+      <p-step-panels>
+
+        <!-- ===== 1. Modalidad ===== -->
+        <p-step-panel [value]="STEP.SERVICE">
+          <ng-template #content>
+            <div class="grid mt-2">
+              <div class="col-6">
+                <button type="button" class="pos-option-card sombra-black border-round-xl w-full p-4 cursor-pointer surface-0"
+                  [class.pos-option-active]="serviceType() === SERVICE_TYPE.DINE_IN"
+                  (click)="chooseServiceType(SERVICE_TYPE.DINE_IN)">
+                  <i class="pi pi-home text-4xl text-primary block mb-2"></i>
+                  <span class="text-xl font-bold">{{ labels.dineIn }}</span>
+                </button>
+              </div>
+              <div class="col-6">
+                <button type="button" class="pos-option-card sombra-black border-round-xl w-full p-4 cursor-pointer surface-0"
+                  [class.pos-option-active]="serviceType() === SERVICE_TYPE.TAKEAWAY"
+                  (click)="chooseServiceType(SERVICE_TYPE.TAKEAWAY)">
+                  <i class="pi pi-shopping-bag text-4xl text-primary block mb-2"></i>
+                  <span class="text-xl font-bold">{{ labels.takeaway }}</span>
+                </button>
+              </div>
+            </div>
+
+            @if (serviceType() === SERVICE_TYPE.DINE_IN) {
+              <div class="flex justify-content-between align-items-center mt-3 mb-2">
+                <span class="text-lg font-bold text-800 required-field">{{ labels.chooseMarker }}</span>
+                <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" [pTooltip]="labels.refresh" (click)="refreshMarkers.emit()" />
+              </div>
+              <div class="flex flex-wrap gap-3">
+                @for (marker of markers(); track marker.id) {
+                  <button type="button" class="pos-marker border-circle sombra-black flex flex-column align-items-center justify-content-center"
+                    [class.pos-marker-selected]="marker.id === selectedMarkerId()"
+                    [class.pos-marker-busy]="marker.inUse"
+                    [disabled]="marker.inUse"
+                    [pTooltip]="marker.inUse ? labels.markerInUse + ' · ' + marker.orderCodeLabel : (marker.description ?? '')"
+                    (click)="chooseMarker(marker)">
+                    <span class="text-2xl font-bold">{{ marker.number }}</span>
+                    @if (marker.inUse) {
+                      <span class="text-xs">{{ marker.orderCodeLabel }}</span>
+                    }
+                  </button>
+                }
+              </div>
+              @if (markers().length > 0 && freeMarkers() === 0) {
+                <p-message severity="warn" [text]="messages.noFreeMarkers" styleClass="w-full mt-3" />
+              }
+            }
+
+            @if (serviceType() !== null) {
+              <div class="mt-4">
+                <p-floatlabel>
+                  <input type="text" pInputText id="customerName" formControlName="customerName" class="w-full" maxlength="100" />
+                  <label for="customerName" class="text-lg font-bold text-800">{{ labels.customerName }}</label>
+                </p-floatlabel>
+              </div>
+            }
+
+            <div class="flex justify-content-end mt-4">
+              <p-button [label]="labels.next" icon="pi pi-arrow-right" iconPos="right" [rounded]="true" size="large"
+                [disabled]="!serviceStepValid()" (click)="goToPayment()" />
+            </div>
+          </ng-template>
+        </p-step-panel>
+
+        <!-- ===== 2. Pago ===== -->
+        <p-step-panel [value]="STEP.PAYMENT">
+          <ng-template #content>
+            <div class="flex justify-content-between align-items-center text-xl mb-3">
+              <span class="font-bold">{{ labels.total }}</span>
+              <span class="font-bold text-primary">{{ targetTotal() | currencyBs }}</span>
+            </div>
+
+            <div formArrayName="payments">
+              @for (row of paymentsArray.controls; track row; let i = $index) {
+                <div class="sombra-black border-round-xl p-3 mb-3 surface-0" [formGroupName]="i">
+                  <div class="grid align-items-center">
+                    <div class="col-12 md:col-5">
+                      <p-select formControlName="paymentMethodId" [options]="paymentMethods()" optionLabel="name" optionValue="id"
+                        appendTo="body" class="w-full" [placeholder]="labels.paymentMethod" />
+                    </div>
+                    <div class="col-10 md:col-6">
+                      <p-floatlabel>
+                        <p-inputnumber [inputId]="'amount-' + i" formControlName="amount" mode="decimal" [minFractionDigits]="2"
+                          [maxFractionDigits]="2" [min]="0" class="w-full" inputStyleClass="w-full text-right" />
+                        <label [for]="'amount-' + i">{{ labels.amount }}</label>
+                      </p-floatlabel>
+                    </div>
+                    <div class="col-2 md:col-1 text-right">
+                      @if (paymentsArray.length > 1) {
+                        <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [text]="true" [ariaLabel]="labels.delete" (click)="removePayment(i)" />
+                      }
+                    </div>
+
+                    @if (methodById(row.controls.paymentMethodId.value)?.requiresReference) {
+                      <div class="col-12">
+                        <p-floatlabel>
+                          <input type="text" pInputText [id]="'reference-' + i" formControlName="reference" class="w-full" maxlength="100" />
+                          <label [for]="'reference-' + i" class="required-field">{{ labels.reference }}</label>
+                        </p-floatlabel>
+                        @if (row.controls.reference.touched && !row.controls.reference.value.trim()) {
+                          <small class="p-error block mt-1">{{ messages.referenceRequired }}</small>
+                        }
+                      </div>
+                    }
+
+                    @if (methodById(row.controls.paymentMethodId.value)?.givesChange) {
+                      <div class="col-12 md:col-6">
+                        <p-floatlabel>
+                          <p-inputnumber [inputId]="'received-' + i" formControlName="received" mode="decimal" [minFractionDigits]="2"
+                            [maxFractionDigits]="2" [min]="0" class="w-full" inputStyleClass="w-full text-right" />
+                          <label [for]="'received-' + i">{{ labels.received }}</label>
+                        </p-floatlabel>
+                      </div>
+                      <div class="col-12 md:col-6 text-right text-xl">
+                        @if (change(i); as value) {
+                          <span class="lynch-700">{{ labels.change }}: </span><span class="font-bold text-green-600">{{ value | currencyBs }}</span>
+                        } @else if (change(i) === 0) {
+                          <span class="lynch-700">{{ labels.change }}: </span><span class="font-bold">{{ 0 | currencyBs }}</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="flex justify-content-between align-items-center">
+              <p-button [label]="labels.addPayment" icon="pi pi-plus" [rounded]="true" [outlined]="true" size="small"
+                [disabled]="paymentMethods().length === 0" (click)="addPayment()" />
+              @if (difference() > 0) {
+                <span class="text-lg text-orange-500 font-semibold">{{ labels.remaining }}: {{ difference() | currencyBs }}</span>
+              } @else if (difference() < 0) {
+                <span class="text-lg text-red-500 font-semibold">{{ labels.exceeding }} {{ -difference() | currencyBs }}</span>
+              }
+            </div>
+
+            <div class="flex justify-content-between mt-4">
+              <p-button [label]="labels.previus" icon="pi pi-arrow-left" severity="secondary" [rounded]="true" [outlined]="true" (click)="back()" />
+              <p-button [label]="labels.next" icon="pi pi-arrow-right" iconPos="right" [rounded]="true" size="large"
+                [disabled]="!paymentsValid()" (click)="goToSummary()" />
+            </div>
+          </ng-template>
+        </p-step-panel>
+
+        <!-- ===== 3. Resumen (POST /order/quote) ===== -->
+        <p-step-panel [value]="STEP.SUMMARY">
+          <ng-template #content>
+            @if (quote(); as q) {
+              <div class="flex flex-wrap gap-2 mb-3">
+                <p-tag [value]="serviceType() === SERVICE_TYPE.DINE_IN ? labels.dineIn : labels.takeaway" severity="info" />
+                @if (selectedMarkerNumber(); as number) {
+                  <p-tag [value]="labels.tableMarker + ' ' + number" severity="success" />
+                }
+                @if (formCheckout.controls.customerName.value.trim()) {
+                  <p-tag [value]="formCheckout.controls.customerName.value.trim()" severity="secondary" />
+                }
+              </div>
+
+              @for (item of q.items; track $index) {
+                <div class="flex justify-content-between py-2 border-bottom-1 surface-border">
+                  <div>
+                    <span class="font-semibold">{{ item.quantity }} × {{ item.productName }}</span>
+                    @for (addon of item.addons; track addon.addonId) {
+                      <div class="text-sm lynch-600">+ {{ addon.addonName }} ({{ addon.unitPrice | currencyBs }})</div>
+                    }
+                    @if (item.notes) {
+                      <div class="text-sm font-italic lynch-600">{{ item.notes }}</div>
+                    }
+                  </div>
+                  <span class="font-semibold white-space-nowrap">{{ item.lineSubtotal | currencyBs }}</span>
+                </div>
+              }
+
+              <div class="flex justify-content-between mt-3 text-lg">
+                <span>{{ labels.subtotal }}</span><span>{{ q.subtotal | currencyBs }}</span>
+              </div>
+              @if (q.discountAmount > 0) {
+                <div class="flex justify-content-between text-lg">
+                  <span>{{ labels.discount }} ({{ q.discountPercent }} %) · <span class="text-sm lynch-600">{{ q.discountReason }}</span></span>
+                  <span class="text-red-500">- {{ q.discountAmount | currencyBs }}</span>
+                </div>
+              }
+              <div class="flex justify-content-between mt-2 pt-2 border-top-2 surface-border text-2xl font-bold">
+                <span>{{ labels.total }}</span><span class="text-primary">{{ q.total | currencyBs }}</span>
+              </div>
+
+              <div class="mt-3">
+                @for (row of paymentsArray.controls; track row) {
+                  <div class="flex justify-content-between lynch-700">
+                    <span>{{ methodById(row.controls.paymentMethodId.value)?.name }}
+                      @if (row.controls.reference.value.trim()) { <span class="text-sm">({{ row.controls.reference.value.trim() }})</span> }
+                    </span>
+                    <span>{{ row.controls.amount.value | currencyBs }}</span>
+                  </div>
+                }
+              </div>
+
+              @if (difference() !== 0) {
+                <p-message severity="warn" [text]="messages.quoteDiffers" styleClass="w-full mt-3" />
+              }
+            } @else {
+              <div class="text-center p-5"><i class="pi pi-spin pi-spinner text-3xl text-primary"></i></div>
+            }
+
+            <div class="flex justify-content-between mt-4">
+              <p-button [label]="labels.previus" icon="pi pi-arrow-left" severity="secondary" [rounded]="true" [outlined]="true"
+                [disabled]="saving()" (click)="back()" />
+              <p-button [label]="labels.confirmOrder" icon="pi pi-check" [rounded]="true" size="large" styleClass="sombra-black pos-touch"
+                [loading]="saving()" [disabled]="!quote() || !paymentsValid() || saving()" (click)="confirm()" />
+            </div>
+          </ng-template>
+        </p-step-panel>
+      </p-step-panels>
+    </p-stepper>
+  </form>
+</p-dialog>

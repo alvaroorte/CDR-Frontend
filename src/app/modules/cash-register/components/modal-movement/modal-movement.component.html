@@ -1,0 +1,31 @@
+<p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-11 md:w-6 lg:w-4" [header]="labels.registerMovement"
+  [modal]="true" appendTo="body">
+  <form [formGroup]="formMovement" (ngSubmit)="submit()">
+    <p-selectbutton formControlName="type" [options]="types" optionLabel="label" optionValue="value" [allowEmpty]="false" class="mb-4" />
+
+    <p-floatlabel class="mt-4">
+      <p-inputnumber inputId="movementAmount" formControlName="amount" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
+        [min]="0" class="w-full" inputStyleClass="w-full text-right" />
+      <label for="movementAmount" class="text-lg font-bold text-800 required-field">{{ labels.amount }}</label>
+    </p-floatlabel>
+    @if (formMovement.controls.amount.touched && formMovement.controls.amount.invalid) {
+      <small class="p-error block mt-2">{{ messages.requiredField }}</small>
+    }
+
+    <p-floatlabel class="mt-5">
+      <input type="text" pInputText id="movementDescription" formControlName="description" class="w-full" maxlength="255" />
+      <label for="movementDescription" class="text-lg font-bold text-800 required-field">{{ labels.description }}</label>
+    </p-floatlabel>
+    @if (formMovement.controls.description.touched && formMovement.controls.description.hasError('required')) {
+      <small class="p-error block mt-2">{{ messages.requiredField }}</small>
+    }
+    @if (formMovement.controls.description.hasError('noSpace')) {
+      <small class="p-error block mt-2">{{ messages.noOnlySpace }}</small>
+    }
+
+    <div class="flex justify-content-end gap-2 mt-5">
+      <p-button [label]="labels.cancel" severity="secondary" [rounded]="true" [outlined]="true" (click)="close()" />
+      <p-button type="submit" [label]="labels.save" icon="pi pi-check" [rounded]="true" [loading]="saving()" />
+    </div>
+  </form>
+</p-dialog>

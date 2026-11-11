@@ -51,6 +51,7 @@ import { IftaLabelModule } from 'primeng/iftalabel';
 import { PopoverModule } from 'primeng/popover';
 import { ImageModule } from 'primeng/image';
 import { TagModule } from 'primeng/tag';
+import { MessageModule } from 'primeng/message';
 
 @NgModule({
   imports: [
@@ -108,7 +109,8 @@ import { TagModule } from 'primeng/tag';
     IftaLabelModule,
     PopoverModule,
     ImageModule,
-    TagModule
+    TagModule,
+    MessageModule
   ]
 })
 export class PrimeModules { }

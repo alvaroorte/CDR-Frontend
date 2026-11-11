@@ -1,0 +1,72 @@
+<form [formGroup]="formParameter">
+  <div class="grid">
+    <div class="col-12">
+      <p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-10 md:w-6 lg:w-4" [header]="titleForm" [modal]="true" class="p-fluid" appendTo="body">
+        <ng-template pTemplate="content">
+
+          <app-message-required-field />
+
+          @if (parameter) {
+            <p class="lynch-700 mt-3">{{ parameter.description }}</p>
+          }
+
+          @switch (valueType) {
+            @case ('PERCENTAGE') {
+              <div class="form-group field mt-5">
+                <p-floatlabel>
+                  <p-inputnumber inputId="numberValue" formControlName="numberValue" suffix=" %" [min]="0" [max]="100"
+                    [minFractionDigits]="0" [maxFractionDigits]="2" class="w-full" />
+                  <label for="numberValue" class="text-lg font-bold text-800 required-field"> {{ labels.value }} </label>
+                </p-floatlabel>
+                @if (formParameter.controls.numberValue.hasError('required')) {
+                  <small class="p-error block mt-2">{{ messages.requiredField }}</small>
+                }
+                @if (formParameter.controls.numberValue.hasError('max') || formParameter.controls.numberValue.hasError('min')) {
+                  <small class="p-error block mt-2">El porcentaje debe estar entre 0 y 100.</small>
+                }
+              </div>
+            }
+            @case ('NUMBER') {
+              <div class="form-group field mt-5">
+                <p-floatlabel>
+                  <p-inputnumber inputId="numberValue" formControlName="numberValue" [maxFractionDigits]="2" class="w-full" />
+                  <label for="numberValue" class="text-lg font-bold text-800 required-field"> {{ labels.value }} </label>
+                </p-floatlabel>
+                @if (formParameter.controls.numberValue.hasError('required')) {
+                  <small class="p-error block mt-2">{{ messages.requiredField }}</small>
+                }
+              </div>
+            }
+            @case ('BOOLEAN') {
+              <div class="form-group field mt-5 flex align-items-center gap-2">
+                <p-toggleswitch inputId="booleanValue" formControlName="booleanValue" />
+                <label for="booleanValue" class="text-lg font-bold text-800"> {{ labels.value }} </label>
+              </div>
+            }
+            @default {
+              <div class="form-group field mt-5">
+                <p-floatlabel>
+                  <input type="text" pInputText id="textValue" formControlName="textValue" class="w-full" />
+                  <label htmlFor="textValue" class="text-lg font-bold text-800 required-field"> {{ labels.value }} </label>
+                </p-floatlabel>
+                @if (formParameter.controls.textValue.touched && formParameter.controls.textValue.hasError('required')) {
+                  <small class="p-error block mt-2">{{ messages.requiredField }}</small>
+                }
+              </div>
+            }
+          }
+
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <div class="p-2 pb-3">
+            <input type="hidden" pInputText id="id" formControlName="id"/>
+            <button type="button" pButton pRipple [label]="labels.cancel" icon="pi pi-times" severity="secondary"
+              [rounded]="true" size="small" class="mr-2 shadow-3" (click)="hideModal()"></button>
+            <button type="button" pButton pRipple [label]="labels.save" icon="pi pi-check" [rounded]="true"
+              size="small" class="mr-2 shadow-3 hover-primary" (click)="save()" [disabled]="formParameter.invalid"></button>
+          </div>
+        </ng-template>
+      </p-dialog>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,53 @@
+<div class="kitchen-card sombra-black border-round-xl surface-0 p-3 mb-3"
+  [class.kitchen-warn]="level() === 'warn'" [class.kitchen-critical]="level() === 'critical'"
+  [class.kitchen-ready]="order().status === 'READY'">
+  <div class="flex justify-content-between align-items-start gap-2">
+    <div>
+      @if (order().serviceType === SERVICE_TYPE.DINE_IN) {
+        <div class="kitchen-marker font-bold text-primary line-height-1">{{ order().tableMarkerNumber }}</div>
+        <div class="text-sm lynch-600">Mesa</div>
+      } @else {
+        <div class="text-xl font-bold lynch-900"><i class="pi pi-shopping-bag mr-1"></i>PARA LLEVAR</div>
+        @if (order().customerName) {
+          <div class="text-lg lynch-700">{{ order().customerName }}</div>
+        }
+      }
+    </div>
+    <div class="text-right">
+      <div class="text-xl font-bold lynch-900">{{ order().codeLabel }}</div>
+      <div class="font-semibold kitchen-elapsed"><i class="pi pi-clock mr-1"></i>{{ elapsed() }}</div>
+    </div>
+  </div>
+
+  @if (!compact()) {
+    <ul class="list-none p-0 mt-3 mb-0">
+      @for (item of order().items; track $index) {
+        <li class="py-1 border-top-1 surface-border">
+          <span class="text-xl font-bold">{{ item.quantity }} ×</span>
+          <span class="text-lg font-semibold ml-1">{{ item.productName }}</span>
+          @for (addon of item.addons; track addon) {
+            <div class="ml-4 lynch-700">+ {{ addon }}</div>
+          }
+          @if (item.notes) {
+            <div class="ml-4 font-italic text-orange-600"><i class="pi pi-exclamation-circle mr-1"></i>{{ item.notes }}</div>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  <div class="flex align-items-center gap-2 mt-3">
+    @if (previous(); as previousStatus) {
+      <p-button icon="pi pi-undo" [rounded]="true" [outlined]="true" severity="secondary" [pTooltip]="previousLabel()"
+        [ariaLabel]="previousLabel()" [disabled]="busy()" (click)="back.emit(previousStatus)" />
+    }
+    @if (next(); as nextStatus) {
+      <p-button [label]="nextLabel()" [icon]="nextStatus === 'READY' ? 'pi pi-check' : 'pi pi-play'" [rounded]="true"
+        size="large" styleClass="w-full kitchen-action sombra-black" class="flex-grow-1"
+        [severity]="nextStatus === 'READY' ? 'success' : 'primary'"
+        [loading]="busy()" (click)="advance.emit(nextStatus)" />
+    } @else {
+      <span class="flex-grow-1 text-center font-semibold text-green-600"><i class="pi pi-bell mr-1"></i>Esperando entrega</span>
+    }
+  </div>
+</div>

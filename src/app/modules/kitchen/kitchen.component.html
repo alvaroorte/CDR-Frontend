@@ -1,0 +1,49 @@
+<div class="container mx-3 mb-0 pb-4">
+  <p-fieldset styleClass="sombra-black">
+    <ng-template #header>
+      <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
+        <h1 class="text-white text-2xl">Cocina <span class="text-sm"> Pedidos en tiempo real</span></h1>
+      </div>
+    </ng-template>
+
+    <div class="flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+      <app-connection-status />
+      <div class="flex align-items-center gap-3">
+        @if (settings(); as s) {
+          <span class="text-sm lynch-600">
+            <span class="kitchen-legend kitchen-warn-dot"></span> desde {{ s.delayWarningMinutes }} min
+            <span class="kitchen-legend kitchen-critical-dot ml-2"></span> desde {{ s.delayCriticalMinutes }} min
+          </span>
+        }
+        <p-button [icon]="soundEnabled() ? 'pi pi-volume-up' : 'pi pi-volume-off'" [rounded]="true" [outlined]="true"
+          [pTooltip]="soundEnabled() ? 'Silenciar aviso de pedido nuevo' : 'Activar aviso de pedido nuevo'"
+          [ariaLabel]="'Sonido'" (click)="toggleSound()" />
+        <p-button icon="pi pi-refresh" [rounded]="true" [outlined]="true" pTooltip="Actualizar" [ariaLabel]="'Actualizar'"
+          (click)="orderWs.resync()" />
+      </div>
+    </div>
+
+    <div class="grid">
+      @for (column of [
+        { title: 'Pendientes', icon: 'pi pi-inbox', orders: pending(), compact: false, css: 'col-12 md:col-6 xl:col-5' },
+        { title: 'En preparación', icon: 'pi pi-spinner', orders: inPreparation(), compact: false, css: 'col-12 md:col-6 xl:col-4' },
+        { title: 'Listos', icon: 'pi pi-check-circle', orders: ready(), compact: true, css: 'col-12 xl:col-3' }
+      ]; track column.title) {
+        <div [class]="column.css">
+          <div class="kitchen-column border-round-xl p-2">
+            <h2 class="text-xl lynch-900 mt-1 mb-3 px-1">
+              <i [class]="column.icon + ' mr-2 text-primary'"></i>{{ column.title }}
+              <p-badge [value]="column.orders.length" class="ml-1" />
+            </h2>
+            @for (order of column.orders; track order.id) {
+              <app-kitchen-card [order]="order" [now]="now()" [settings]="settings()" [busy]="isBusy(order.id)"
+                [compact]="column.compact" (advance)="changeStatus(order, $event)" (back)="changeStatus(order, $event)" />
+            } @empty {
+              <div class="lynch-500 text-center p-4">Sin pedidos</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </p-fieldset>
+</div>

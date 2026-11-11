@@ -1,0 +1,41 @@
+<div class="container mx-3 mb-0 pb-4">
+  <p-fieldset styleClass="sombra-black">
+    <ng-template pTemplate="header">
+      <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
+        <h1 class="text-white text-2xl">Roles y permisos <span class="text-sm"> Gestión de roles y acceso a funcionalidades</span> </h1>
+      </div>
+    </ng-template>
+    <div class="grid">
+      <div class="col-12 fadeindown animation-duration-400">
+        <div class="sombra-black border-round-xl p-2 surface-0">
+          <app-toolbar-common
+            tooltipCreate="Crear rol"
+            tooltipDelete="Desactivar rol"
+            iconDelete="pi-ban"
+            [serviceGeneric]="roleService"
+            [object]="roleSelected()">
+            <p-button icon="pi pi-key"
+              pTooltip="Asignar permisos"
+              size="small"
+              severity="help"
+              [rounded]="true"
+              styleClass="mr-2 sombra-black hover-help fadeinup animation-ease-in-out animation-duration-300"
+              (click)="openPermissions()"
+             />
+          </app-toolbar-common>
+          <app-modal-form />
+          <app-modal-permissions />
+          <app-modal-delete [serviceGeneric]="roleService"
+            [objectId]="roleSelected()?.id" />
+          <app-generic-table [titleTable]="titleTable"
+            [items]="roles()"
+            [tableColumnDefinitions]="tableColumnRoleDefinitions"
+            (onSelection)="setRole($event)"
+            (requestData)="getRoles()"
+            (selfEmitter)="onTableSelfEmision($event)"
+           />
+        </div>
+      </div>
+    </div>
+  </p-fieldset>
+</div>

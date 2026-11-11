@@ -1,0 +1,56 @@
+<form [formGroup]="formAddon">
+  <div class="grid">
+    <div class="col-12">
+      <p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-10 md:w-6 lg:w-4" [header]="titleForm" [modal]="true" class="p-fluid" appendTo="body">
+        <ng-template pTemplate="content">
+
+          <app-message-required-field />
+
+          <div class="form-group field mt-5">
+            <p-floatlabel>
+              <input type="text" pInputText id="name" formControlName="name" class="w-full" />
+              <label htmlFor="name" class="text-lg font-bold text-800 required-field"> {{ labels.name }} </label>
+            </p-floatlabel>
+            @if (formAddon.controls.name.touched && formAddon.controls.name.hasError('required')) {
+              <small class="p-error block mt-2">{{ messages.requiredField }}</small>
+            }
+            @if (formAddon.controls.name.hasError('pattern')) {
+              <small class="p-error block mt-2">{{ messages.deniedCharactersName }}</small>
+            }
+            @if (formAddon.controls.name.hasError('minlength')) {
+              <small class="p-error block mt-2">{{ messages.minNumberField(2) }}</small>
+            }
+            @if (formAddon.controls.name.hasError('noSpace')) {
+              <small class="p-error block mt-2">{{ messages.noOnlySpace }}</small>
+            }
+          </div>
+
+          <div class="form-group field mt-5">
+            <p-floatlabel>
+              <p-inputnumber inputId="price" formControlName="price" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" [min]="0" class="w-full" />
+              <label for="price" class="text-lg font-bold text-800 required-field"> {{ labels.price }} </label>
+            </p-floatlabel>
+            @if (formAddon.controls.price.touched && formAddon.controls.price.hasError('required')) {
+              <small class="p-error block mt-2">{{ messages.requiredField }}</small>
+            }
+          </div>
+
+          <div class="form-group field mt-4 flex align-items-center gap-2">
+            <p-toggleswitch inputId="active" formControlName="active" />
+            <label for="active" class="text-lg font-bold text-800"> {{ labels.active }} </label>
+          </div>
+
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <div class="p-2 pb-3">
+            <input type="hidden" pInputText id="id" formControlName="id"/>
+            <button type="button" pButton pRipple [label]="labels.cancel" icon="pi pi-times" severity="secondary"
+              [rounded]="true" size="small" class="mr-2 shadow-3" (click)="hideModal()"></button>
+            <button type="button" pButton pRipple [label]="labels.save" icon="pi pi-check" [rounded]="true"
+              size="small" class="mr-2 shadow-3 hover-primary" (click)="save()" [disabled]="formAddon.invalid"></button>
+          </div>
+        </ng-template>
+      </p-dialog>
+    </div>
+  </div>
+</form>

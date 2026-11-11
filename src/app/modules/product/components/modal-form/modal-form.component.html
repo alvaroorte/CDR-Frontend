@@ -1,0 +1,98 @@
+<form [formGroup]="formProduct">
+  <div class="grid">
+    <div class="col-12">
+      <p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-10 md:w-8 lg:w-6" [header]="titleForm" [modal]="true" class="p-fluid" appendTo="body">
+        <ng-template pTemplate="content">
+
+          <app-message-required-field />
+
+          <div class="p-fluid p-formgrid grid">
+            <div class="form-group field col-12 md:col-7 mt-5">
+              <p-floatlabel>
+                <input type="text" pInputText id="name" formControlName="name" class="w-full" />
+                <label htmlFor="name" class="text-lg font-bold text-800 required-field"> {{ labels.name }} </label>
+              </p-floatlabel>
+              @if (formProduct.controls.name.touched && formProduct.controls.name.hasError('required')) {
+                <small class="p-error block mt-2">{{ messages.requiredField }}</small>
+              }
+              @if (formProduct.controls.name.hasError('pattern')) {
+                <small class="p-error block mt-2">{{ messages.deniedCharactersName }}</small>
+              }
+              @if (formProduct.controls.name.hasError('minlength')) {
+                <small class="p-error block mt-2">{{ messages.minNumberField(2) }}</small>
+              }
+              @if (formProduct.controls.name.hasError('noSpace')) {
+                <small class="p-error block mt-2">{{ messages.noOnlySpace }}</small>
+              }
+            </div>
+
+            <div class="form-group field col-12 md:col-5 mt-5">
+              <p-floatlabel>
+                <p-inputnumber inputId="price" formControlName="price" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" [min]="0" class="w-full" />
+                <label for="price" class="text-lg font-bold text-800 required-field"> {{ labels.price }} </label>
+              </p-floatlabel>
+              @if (formProduct.controls.price.touched && formProduct.controls.price.hasError('required')) {
+                <small class="p-error block mt-2">{{ messages.requiredField }}</small>
+              }
+            </div>
+
+            <div class="form-group field col-12 md:col-6 mt-4">
+              <p-floatlabel>
+                <p-select inputId="categoryId" formControlName="categoryId" [options]="categories" optionLabel="name" optionValue="id"
+                  [filter]="true" appendTo="body" class="w-full" />
+                <label for="categoryId" class="text-lg font-bold text-800 required-field"> {{ labels.category }} </label>
+              </p-floatlabel>
+              @if (formProduct.controls.categoryId.touched && formProduct.controls.categoryId.hasError('required')) {
+                <small class="p-error block mt-2">{{ messages.requiredField }}</small>
+              }
+            </div>
+
+            <div class="form-group field col-12 md:col-6 mt-4">
+              <p-floatlabel>
+                <p-multiselect inputId="addonIds" formControlName="addonIds" [options]="addons" optionLabel="name" optionValue="id"
+                  display="chip" [filter]="true" appendTo="body" class="w-full" />
+                <label for="addonIds" class="text-lg font-bold text-800"> {{ labels.addons }} </label>
+              </p-floatlabel>
+            </div>
+
+            <div class="form-group field col-12 mt-4">
+              <p-floatlabel>
+                <textarea pTextarea id="description" formControlName="description" rows="3" class="w-full"></textarea>
+                <label for="description" class="text-lg font-bold text-800"> {{ labels.description }} </label>
+              </p-floatlabel>
+              @if (formProduct.controls.description.hasError('maxlength')) {
+                <small class="p-error block mt-2">{{ messages.requiredMaxLengthDescription }}</small>
+              }
+            </div>
+
+            <div class="form-group field col-12 md:col-7 mt-3">
+              <label class="text-lg font-bold text-800 block mb-2"> {{ labels.image }} </label>
+              <app-image-input formControlName="imageBase64" inputId="productImage" />
+            </div>
+
+            <div class="col-12 md:col-5 mt-3 flex flex-column gap-3 justify-content-center">
+              <div class="flex align-items-center gap-2">
+                <p-toggleswitch inputId="available" formControlName="available" />
+                <label for="available" class="text-lg font-bold text-800"> {{ labels.available }} </label>
+              </div>
+              <div class="flex align-items-center gap-2">
+                <p-toggleswitch inputId="active" formControlName="active" />
+                <label for="active" class="text-lg font-bold text-800"> {{ labels.active }} </label>
+              </div>
+            </div>
+          </div>
+
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <div class="p-2 pb-3">
+            <input type="hidden" pInputText id="id" formControlName="id"/>
+            <button type="button" pButton pRipple [label]="labels.cancel" icon="pi pi-times" severity="secondary"
+              [rounded]="true" size="small" class="mr-2 shadow-3" (click)="hideModal()"></button>
+            <button type="button" pButton pRipple [label]="labels.save" icon="pi pi-check" [rounded]="true"
+              size="small" class="mr-2 shadow-3 hover-primary" (click)="save()" [disabled]="formProduct.invalid"></button>
+          </div>
+        </ng-template>
+      </p-dialog>
+    </div>
+  </div>
+</form>

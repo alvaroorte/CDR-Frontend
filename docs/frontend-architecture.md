@@ -33,9 +33,10 @@ src/
    │  ├─ utils/       table-column-definitions, prime-table-props, filter, device, ...
    │  └─ validators/  noSpaceValidator, ...
    ├─ modules/
-   │  ├─ login/
-   │  ├─ users/ roles/ permissions/                         CRUD (angular-crud)
-   │  ├─ categories/ products/ addons/ table-markers/ payment-methods/ parameters/   CRUD (angular-crud)
+   │  ├─ login/  home/
+   │  ├─ user/ role/                 CRUD (angular-crud); permisos se asignan desde role/ (modal-permissions)
+   │  ├─ category/ product/ addon/ table-marker/ payment-method/ parameter/   CRUD (angular-crud)
+   │  │     carpeta en singular, ruta en plural (skill angular-crud). Referencia local: category/
    │  ├─ pos/            pantalla de registro de pedidos (frontend-component)
    │  ├─ orders/         seguimiento + historial + detalle
    │  ├─ kitchen/        tablero de cocina en tiempo real
@@ -43,7 +44,7 @@ src/
    │  └─ reports/
    └─ shared/
       ├─ components/  generic-table, table-on-demand, toolbar, modal-delete, message-required-field, loader,
-      │               input-file, stepper, mobile-app-required, not-found, order-status-tag (nuevo),
+      │               image-input (base64), stepper, mobile-app-required, not-found, order-status-tag (nuevo),
       │               elapsed-time (nuevo), connection-status (nuevo)
       └─ prime-components/prime-components.module.ts   (PrimeModules: barril de módulos PrimeNG)
 ```
@@ -65,7 +66,7 @@ compara `access` con `loginService.rolesUser()`; si no coincide → `/404`.
 | `kitchen` | ADMIN, COCINA | barra superior |
 | `cash-register` | ADMIN, CAJERO | barra superior |
 | `reports` | ADMIN | barra superior |
-| `categories`, `products`, `addons`, `table-markers`, `payment-methods`, `parameters`, `users`, `roles` | ADMIN (*`products` también CAJERO para marcar agotado — decisión pendiente*) | "Configuraciones" |
+| `categories`, `products`, `addons`, `table-markers`, `payment-methods`, `parameters`, `users`, `roles` | ADMIN; `products` también CAJERO, solo para marcar agotado/disponible (aprobado) | "Configuraciones" |
 
 Tras login, redirección por rol: COCINA → `/kitchen`; CAJERO → `/pos`; ADMIN → `/pos`.
 

@@ -5,6 +5,7 @@ import { Observable, catchError, of, throwError } from 'rxjs';
 import { LoginRequest, LoginResponse, UserInfo } from '@core/models/login';
 import { environment } from '@core/environments/environment.development';
 import { LocalStorageService } from './local-storage.service';
+import { CashSessionService } from './cash-session.service';
 import { LOCAL_STORAGE } from '@core/constants/local-storage';
 import { LABELS } from '@core/constants/labels';
 import { AuthenticatedUser } from '@core/interfaces/authenticated-user';
@@ -24,6 +25,7 @@ export class LoginService {
   private httpWithoutInterceptors = new HttpClient(inject(HttpBackend));
   private router = inject(Router);
   private localStorageService = inject(LocalStorageService);
+  private cashSessionService = inject(CashSessionService);
   private serverUrl: string = environment.server_url;
 
   public user = signal<string>(LABELS.getInto);
@@ -83,9 +85,14 @@ export class LoginService {
     return roles.some(role => this.rolesUser().includes(role));
   }
 
-  /** Pantalla inicial tras el login. Etapa 1: 'inicio' para todos los roles. */
+  /**
+   * Pantalla inicial tras el login: quien cobra (ADMIN, CAJERO) va al POS, COCINA al tablero.
+   */
   public homeRoute(): string {
-    return '/inicio';
+    if (this.haveSomeRole([ROLES_CODE_SYSTEM.ADMIN, ROLES_CODE_SYSTEM.CASHIER])) {
+      return '/pos';
+    }
+    return this.haveSomeRole([ROLES_CODE_SYSTEM.KITCHEN]) ? '/kitchen' : '/inicio';
   }
 
   private loadCurrentUser(): void {
@@ -98,6 +105,7 @@ export class LoginService {
   }
 
   private clearUser(): void {
+    this.cashSessionService.reset();
     this.user.set(LABELS.getInto);
     this.fullName.set('');
     this.userId.set(null);

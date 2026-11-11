@@ -1,0 +1,77 @@
+<p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-11 lg:w-8 xl:w-6"
+  [header]="'Pedido ' + (order()?.codeLabel ?? '')" [modal]="true" appendTo="body" [dismissableMask]="true">
+  @if (order(); as o) {
+    <div class="flex flex-wrap gap-2 mb-3">
+      <p-tag [value]="o.statusLabel" [severity]="severity[o.status]" />
+      <p-tag [value]="o.serviceTypeLabel" severity="info" />
+      @if (o.tableMarkerNumber !== null) {
+        <p-tag [value]="'Mesa ' + o.tableMarkerNumber" severity="success" />
+      }
+      @if (o.customerName) {
+        <p-tag [value]="o.customerName" severity="secondary" />
+      }
+      <span class="lynch-600 ml-auto">{{ o.createdAt | formatDateWhitHour }} · {{ o.createdBy }}</span>
+    </div>
+
+    <div class="grid">
+      <div class="col-12 md:col-7">
+        @for (item of o.items; track $index) {
+          <div class="flex justify-content-between py-2 border-bottom-1 surface-border">
+            <div>
+              <span class="font-semibold">{{ item.quantity }} × {{ item.productName }}</span>
+              <span class="lynch-600 text-sm"> ({{ item.unitPrice | currencyBs }})</span>
+              @for (addon of item.addons; track addon.addonId) {
+                <div class="text-sm lynch-600">+ {{ addon.addonName }} ({{ addon.unitPrice | currencyBs }})</div>
+              }
+              @if (item.notes) {
+                <div class="text-sm font-italic lynch-600">{{ item.notes }}</div>
+              }
+            </div>
+            <span class="font-semibold white-space-nowrap">{{ item.lineSubtotal | currencyBs }}</span>
+          </div>
+        }
+        <div class="flex justify-content-between mt-2"><span>Subtotal</span><span>{{ o.subtotal | currencyBs }}</span></div>
+        @if (o.discountAmount > 0) {
+          <div class="flex justify-content-between">
+            <span>Descuento · <span class="text-sm lynch-600">{{ o.discountReason }} ({{ o.discountAppliedBy }})</span></span>
+            <span class="text-red-500">- {{ o.discountAmount | currencyBs }}</span>
+          </div>
+        }
+        <div class="flex justify-content-between text-xl font-bold mt-2 pt-2 border-top-2 surface-border">
+          <span>Total</span><span class="text-primary">{{ o.total | currencyBs }}</span>
+        </div>
+
+        <h4 class="mb-2 lynch-900">Pagos</h4>
+        @for (payment of o.payments; track payment.id) {
+          <div class="flex justify-content-between">
+            <span>{{ payment.paymentMethodName }}
+              @if (payment.reference) { <span class="text-sm lynch-600">({{ payment.reference }})</span> }
+              @if (payment.status === 'REFUNDED') { <p-tag value="Reembolsado" severity="danger" class="ml-1" /> }
+            </span>
+            <span>{{ payment.amount | currencyBs }}</span>
+          </div>
+        }
+
+        @if (o.cancelReason) {
+          <p-message severity="error" styleClass="w-full mt-3"
+            [text]="'Cancelado por ' + o.cancelledBy + ': ' + o.cancelReason" />
+        }
+      </div>
+
+      <div class="col-12 md:col-5">
+        <h4 class="mt-0 mb-2 lynch-900">Historial de estados</h4>
+        <p-timeline [value]="o.statusHistory">
+          <ng-template #content let-event>
+            <div class="font-semibold">{{ event.toStatusLabel }}</div>
+            <div class="text-sm lynch-600">{{ event.changedAt | formatDateWhitHour }} · {{ event.changedBy }}</div>
+            @if (event.note) {
+              <div class="text-sm font-italic lynch-600">{{ event.note }}</div>
+            }
+          </ng-template>
+        </p-timeline>
+      </div>
+    </div>
+  } @else {
+    <div class="text-center p-5"><i class="pi pi-spin pi-spinner text-3xl text-primary"></i></div>
+  }
+</p-dialog>

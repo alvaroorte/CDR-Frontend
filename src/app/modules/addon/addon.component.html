@@ -1,0 +1,31 @@
+<div class="container mx-3 mb-0 pb-4">
+  <p-fieldset styleClass="sombra-black">
+    <ng-template pTemplate="header">
+      <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
+        <h1 class="text-white text-2xl">Adicionales <span class="text-sm"> Gestión de adicionales de productos</span> </h1>
+      </div>
+    </ng-template>
+    <div class="grid">
+      <div class="col-12 fadeindown animation-duration-400">
+        <div class="sombra-black border-round-xl p-2 surface-0">
+          <app-toolbar-common
+            tooltipCreate="Crear adicional"
+            tooltipDelete="Desactivar adicional"
+            iconDelete="pi-ban"
+            [serviceGeneric]="addonService"
+            [object]="addonSelected()"/>
+          <app-modal-form />
+          <app-modal-delete [serviceGeneric]="addonService"
+            [objectId]="addonSelected()?.id" />
+          <app-generic-table [titleTable]="titleTable"
+            [items]="addons()"
+            [tableColumnDefinitions]="tableColumnAddonDefinitions"
+            (onSelection)="setAddon($event)"
+            (requestData)="getAddons()"
+            (selfEmitter)="onTableSelfEmision($event)"
+           />
+        </div>
+      </div>
+    </div>
+  </p-fieldset>
+</div>
