@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { ORDER_STATUS, ORDER_STATUS_LABELS, ORDER_STATUS_SEVERITY } from '@core/enums/order-status';
+import { ORDER_STATUS, ORDER_STATUS_SEVERITY } from '@core/enums/order-status';
 import { REPORT_GROUP_BY, REPORT_GROUP_BY_LABELS, REPORT_TYPE, REPORT_TYPE_LABELS } from '@core/enums/report-type';
 import { SERVICE_TYPE, SERVICE_TYPE_LABELS } from '@core/enums/service-type';
 import { OperationsReport, PaymentsReport, ProductsReport, ReportFilter, SalesReport } from '@core/models/report';
@@ -147,10 +147,6 @@ export class ReportComponent implements OnInit {
       },
       error: () => this.exporting.set(false)
     });
-  }
-
-  public statusLabel(status: string): string {
-    return ORDER_STATUS_LABELS[status as ORDER_STATUS] ?? status;
   }
 
   public statusSeverity(status: string) {

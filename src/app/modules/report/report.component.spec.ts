@@ -12,6 +12,8 @@ import { HelpersService } from '@core/services/helpers.service';
 import { CategoryService } from '@modules/category/services/category.service';
 import { PaymentMethodService } from '@modules/payment-method/services/payment-method.service';
 import { UserService } from '@modules/user/services/user.service';
+import { OrderStatusLabelPipe } from '@core/pipes/order-status-label.pipe';
+import { PercentBsPipe } from '@core/pipes/percent-bs.pipe';
 import { ReportComponent } from './report.component';
 import { ReportService } from './services/report.service';
 
@@ -151,8 +153,24 @@ describe('ReportComponent', () => {
     expect(files.downloadFile).not.toHaveBeenCalled();
   });
 
-  it('etiquetas y severidad de estados', () => {
-    expect(component.statusLabel('IN_PREPARATION')).toBe('En preparación');
+  it('severidad de estados', () => {
     expect(component.statusSeverity('CANCELLED')).toBe('danger');
+    expect(component.statusSeverity('UNKNOWN')).toBe('secondary');
+  });
+});
+
+describe('Pipes de presentación (Etapa 7)', () => {
+  it('orderStatusLabel muestra la etiqueta legible, no la técnica del backend', () => {
+    const pipe = new OrderStatusLabelPipe();
+    expect(pipe.transform('IN_PREPARATION')).toBe('En preparación');
+    expect(pipe.transform('CANCELLED')).toBe('Cancelado');
+    expect(pipe.transform(null)).toBe('');
+  });
+
+  it('percentBs usa coma decimal como los importes', () => {
+    const pipe = new PercentBsPipe();
+    expect(pipe.transform(50.34)).toBe('50,34 %');
+    expect(pipe.transform(100)).toBe('100,00 %');
+    expect(pipe.transform(null)).toBe('');
   });
 });

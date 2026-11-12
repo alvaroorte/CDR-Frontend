@@ -79,6 +79,8 @@ export const LABELS = {
     quantity: "Cantidad",
     notes: "Observaciones",
     notesPlaceholder: "Ej.: sin azúcar, bien caliente",
+    addNotes: "Agregar observación",
+    editNotes: "Editar observación",
     addToCart: "Agregar",
     subtotal: "Subtotal",
     discount: "Descuento",

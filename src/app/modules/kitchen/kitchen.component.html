@@ -25,9 +25,9 @@
 
     <div class="grid">
       @for (column of [
-        { title: 'Pendientes', icon: 'pi pi-inbox', orders: pending(), compact: false, css: 'col-12 md:col-6 xl:col-5' },
-        { title: 'En preparación', icon: 'pi pi-spinner', orders: inPreparation(), compact: false, css: 'col-12 md:col-6 xl:col-4' },
-        { title: 'Listos', icon: 'pi pi-check-circle', orders: ready(), compact: true, css: 'col-12 xl:col-3' }
+        { title: 'Pendientes', icon: 'pi pi-inbox', orders: pending(), compact: false, css: 'col-12 md:col-6 lg:col-5' },
+        { title: 'En preparación', icon: 'pi pi-spinner', orders: inPreparation(), compact: false, css: 'col-12 md:col-6 lg:col-4' },
+        { title: 'Listos', icon: 'pi pi-check-circle', orders: ready(), compact: true, css: 'col-12 lg:col-3' }
       ]; track column.title) {
         <div [class]="column.css">
           <div class="kitchen-column border-round-xl p-2">

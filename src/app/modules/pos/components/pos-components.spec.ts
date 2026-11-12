@@ -32,32 +32,49 @@ describe('CartPanelComponent', () => {
     });
   });
 
-  it('el formulario de descuento actualiza el carrito', () => {
-    component.formDiscount.patchValue({ type: DISCOUNT_TYPE.PERCENTAGE, value: 10, reason: 'Promo' });
+  it('el descuento se ingresa en Bs (monto fijo) y actualiza el carrito', () => {
+    component.formDiscount.patchValue({ value: 2, reason: 'Promo' });
     expect(cart.discountAmount()).toBe(2);
+    expect(cart.discount()?.type).toBe(DISCOUNT_TYPE.FIXED_AMOUNT);
     expect(component.canContinue()).toBe(true);
   });
 
   it('exige motivo cuando el descuento supera el umbral', () => {
-    component.formDiscount.patchValue({ type: DISCOUNT_TYPE.PERCENTAGE, value: 10, reason: '' });
+    component.formDiscount.patchValue({ value: 2, reason: '' });
     expect(component.discountError()).toBe(component.messages.discountReasonRequired);
     expect(component.canContinue()).toBe(false);
   });
 
   it('el CAJERO no puede superar el máximo (monto fijo comparado como %)', () => {
-    component.formDiscount.patchValue({ type: DISCOUNT_TYPE.FIXED_AMOUNT, value: 15, reason: 'x' });
+    component.formDiscount.patchValue({ value: 15, reason: 'x' });
     expect(component.discountError()).toContain('50 %');
   });
 
   it('un descuento que deja el total en 0 no permite continuar', () => {
-    component.formDiscount.patchValue({ type: DISCOUNT_TYPE.FIXED_AMOUNT, value: 20, reason: 'x' });
+    component.formDiscount.patchValue({ value: 20, reason: 'x' });
     expect(component.discountError()).not.toBeNull();
   });
 
   it('clearDiscount quita el descuento del carrito', () => {
-    component.formDiscount.patchValue({ type: DISCOUNT_TYPE.PERCENTAGE, value: 10, reason: 'x' });
+    component.formDiscount.patchValue({ value: 2, reason: 'x' });
     component.clearDiscount();
     expect(cart.discount()).toBeNull();
+  });
+
+  it('edita la observación de una línea sin adicionales y cancelar no la cambia', () => {
+    const line = cart.lines()[0];
+    component.startEditNotes(line.key, line.notes);
+    expect(component.editingNotesKey()).toBe(line.key);
+    component.notesControl.setValue('para llevar sin tapa');
+    component.saveNotes();
+    expect(cart.lines()[0].notes).toBe('para llevar sin tapa');
+    expect(component.editingNotesKey()).toBeNull();
+
+    component.startEditNotes(cart.lines()[0].key, cart.lines()[0].notes);
+    expect(component.notesControl.value).toBe('para llevar sin tapa');
+    component.notesControl.setValue('otra');
+    component.cancelEditNotes();
+    expect(cart.lines()[0].notes).toBe('para llevar sin tapa');
   });
 });
 

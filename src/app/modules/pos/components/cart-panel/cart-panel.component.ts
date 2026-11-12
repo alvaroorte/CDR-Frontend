@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, inject, input, output } from '@angular/core';
+import { Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, Validators } from '@angular/forms';
 import { LABELS } from '@core/constants/labels';
@@ -27,15 +27,10 @@ export class CartPanelComponent {
   public readonly cart = inject(CartService);
   public readonly labels = LABELS;
   public readonly messages = MESSAGES;
-  public readonly discountTypes = [
-    { label: '%', value: DISCOUNT_TYPE.PERCENTAGE },
-    { label: 'Bs', value: DISCOUNT_TYPE.FIXED_AMOUNT },
-  ];
-  public readonly DISCOUNT_TYPE = DISCOUNT_TYPE;
 
   private formBuilder = inject(FormBuilder);
+  /** El descuento se ingresa solo en Bs (monto fijo); ya no se ofrece por porcentaje. */
   public formDiscount = this.formBuilder.nonNullable.group({
-    type: [DISCOUNT_TYPE.PERCENTAGE as DISCOUNT_TYPE],
     value: this.formBuilder.control<number | null>(null, [Validators.min(0)]),
     reason: ['', [Validators.maxLength(255)]],
   });
@@ -48,10 +43,7 @@ export class CartPanelComponent {
     const discount = this.cart.discount();
     const rules = this.discountRules();
     if (discount) {
-      if (discount.type === DISCOUNT_TYPE.PERCENTAGE && discount.value > 100) {
-        return this.messages.discountPercentMax;
-      }
-      if (discount.type === DISCOUNT_TYPE.FIXED_AMOUNT && discount.value > this.cart.subtotal()) {
+      if (discount.value > this.cart.subtotal()) {
         return this.messages.discountAboveSubtotal;
       }
       if (rules && !this.isAdmin() && this.cart.discountPercent() > rules.cashierMaxPercent) {
@@ -66,10 +58,14 @@ export class CartPanelComponent {
 
   public readonly canContinue = computed(() => !this.cart.isEmpty() && this.discountError() === null);
 
+  /** Línea cuya observación se está editando (una a la vez), o null. */
+  public readonly editingNotesKey = signal<string | null>(null);
+  public notesControl = this.formBuilder.nonNullable.control('', [Validators.maxLength(255)]);
+
   constructor() {
     const current = this.cart.discount();
     if (current) {
-      this.formDiscount.reset({ type: current.type, value: current.value, reason: current.reason ?? '' });
+      this.formDiscount.reset({ value: current.value, reason: current.reason ?? '' });
     }
     this.formDiscount.valueChanges.pipe(takeUntilDestroyed(inject(DestroyRef))).subscribe(() => this.applyDiscount());
   }
@@ -82,8 +78,26 @@ export class CartPanelComponent {
     this.cart.updateQuantity(key, quantity - 1);
   }
 
+  public startEditNotes(key: string, notes: string | null): void {
+    this.notesControl.reset(notes ?? '');
+    this.editingNotesKey.set(key);
+  }
+
+  public saveNotes(): void {
+    const key = this.editingNotesKey();
+    if (key === null || this.notesControl.invalid) {
+      return;
+    }
+    this.cart.updateNotes(key, this.notesControl.value);
+    this.editingNotesKey.set(null);
+  }
+
+  public cancelEditNotes(): void {
+    this.editingNotesKey.set(null);
+  }
+
   public clearDiscount(): void {
-    this.formDiscount.reset({ type: DISCOUNT_TYPE.PERCENTAGE, value: null, reason: '' });
+    this.formDiscount.reset({ value: null, reason: '' });
   }
 
   public clearCart(): void {
@@ -98,7 +112,7 @@ export class CartPanelComponent {
   }
 
   private applyDiscount(): void {
-    const { type, value, reason } = this.formDiscount.getRawValue();
-    this.cart.setDiscount(value !== null && value > 0 ? { type, value, reason } : null);
+    const { value, reason } = this.formDiscount.getRawValue();
+    this.cart.setDiscount(value !== null && value > 0 ? { type: DISCOUNT_TYPE.FIXED_AMOUNT, value, reason } : null);
   }
 }

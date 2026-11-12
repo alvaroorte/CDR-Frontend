@@ -46,7 +46,7 @@
                       @if (order.customerName) { <span class="lynch-600"> · {{ order.customerName }}</span> }
                     }
                   </td>
-                  <td><p-tag [value]="order.statusLabel" [severity]="statusSeverity(order.status)" /></td>
+                  <td><p-tag [value]="order.status | orderStatusLabel" [severity]="statusSeverity(order.status)" /></td>
                   <td class="white-space-nowrap">{{ elapsed(order) }}</td>
                   <td class="text-sm">
                     @for (item of order.items; track $index; let last = $last) {
@@ -126,7 +126,7 @@
                   <td>{{ order.tableMarkerNumber !== null ? 'Mesa ' + order.tableMarkerNumber : order.serviceTypeLabel }}
                     @if (order.customerName) { <span class="lynch-600"> · {{ order.customerName }}</span> }
                   </td>
-                  <td><p-tag [value]="order.statusLabel" [severity]="statusSeverity(order.status)" /></td>
+                  <td><p-tag [value]="order.status | orderStatusLabel" [severity]="statusSeverity(order.status)" /></td>
                   <td>{{ order.createdBy }}</td>
                   <td class="text-right">{{ order.discountAmount > 0 ? '- ' : '' }}{{ order.discountAmount | currencyBs }}</td>
                   <td class="text-right font-semibold">{{ order.total | currencyBs }}</td>

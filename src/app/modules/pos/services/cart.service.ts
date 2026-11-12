@@ -70,8 +70,8 @@ export class CartService {
    */
   public addLine(product: PosProduct, quantity: number, addons: PosAddon[], notes: string | null): void {
     const sortedAddons = [...addons].sort((a, b) => a.id - b.id);
-    const cleanNotes = notes?.trim() ? notes.trim() : null;
-    const key = `${product.id}|${sortedAddons.map(a => a.id).join(',')}|${cleanNotes ?? ''}`;
+    const cleanNotes = this.cleanNotes(notes);
+    const key = this.buildKey(product.id, sortedAddons, cleanNotes);
     this._lines.update(lines => {
       const existing = lines.find(l => l.key === key);
       if (existing) {
@@ -92,8 +92,41 @@ export class CartService {
     this._lines.update(lines => lines.map(l => l.key === key ? { ...l, quantity: Math.min(999, quantity) } : l));
   }
 
+  /**
+   * Agrega, cambia o quita (vacío) la observación de una línea. Las observaciones forman parte de la
+   * identidad de la línea: si ya existe otra igual (mismo producto, adicionales y observación) se fusionan
+   * sumando cantidades, en la posición de la línea editada.
+   */
+  public updateNotes(key: string, notes: string | null): void {
+    this._lines.update(lines => {
+      const line = lines.find(l => l.key === key);
+      if (!line) {
+        return lines;
+      }
+      const cleanNotes = this.cleanNotes(notes);
+      const newKey = this.buildKey(line.productId, line.addons, cleanNotes);
+      if (newKey === key) {
+        return lines;
+      }
+      const twin = lines.find(l => l.key === newKey);
+      return lines
+        .filter(l => l.key !== newKey)
+        .map(l => l.key === key
+          ? { ...l, key: newKey, notes: cleanNotes, quantity: Math.min(999, l.quantity + (twin?.quantity ?? 0)) }
+          : l);
+    });
+  }
+
   public removeLine(key: string): void {
     this._lines.update(lines => lines.filter(l => l.key !== key));
+  }
+
+  private cleanNotes(notes: string | null): string | null {
+    return notes?.trim() ? notes.trim() : null;
+  }
+
+  private buildKey(productId: number, sortedAddons: { id: number }[], notes: string | null): string {
+    return `${productId}|${sortedAddons.map(a => a.id).join(',')}|${notes ?? ''}`;
   }
 
   public setDiscount(discount: ICartDiscount | null): void {

@@ -1,7 +1,7 @@
 <div class="flex flex-wrap gap-2 mb-3">
   @for (category of categories(); track category.id) {
     <button type="button"
-      class="pos-category-chip sombra-black border-round-xl flex align-items-center gap-2 px-3 py-2 cursor-pointer"
+      class="pos-category-chip border-round-xl flex align-items-center gap-2 px-3 py-2 cursor-pointer"
       [class.pos-category-chip-active]="category.id === selectedCategoryId()"
       (click)="selectCategory(category.id)">
       @if (category.imageBase64) {
@@ -9,12 +9,12 @@
       } @else {
         <i class="pi pi-th-large"></i>
       }
-      <span class="font-semibold">{{ category.name }}</span>
+      <span [class.font-semibold]="category.id === selectedCategoryId()">{{ category.name }}</span>
     </button>
   }
 </div>
 
-<div class="grid">
+<div class="grid sombra-black border-round-xl p-3 surface-0 mx-1 mt-3">
   @for (product of products(); track product.id) {
     <div class="col-6 md:col-4 xl:col-3">
       <button type="button"

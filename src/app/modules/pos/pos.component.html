@@ -15,7 +15,6 @@
 
     <div class="grid">
       <div class="col-12 lg:col-8 fadeindown animation-duration-400">
-        <div class="sombra-black border-round-xl p-3 surface-0">
           @if (catalog(); as c) {
             @if (c.categories.length > 0) {
               <app-product-grid [categories]="c.categories" (productSelected)="onProductSelected($event)" />
@@ -29,7 +28,6 @@
               }
             </div>
           }
-        </div>
       </div>
       <div class="col-12 lg:col-4 fadeindown animation-duration-500">
         <div class="pos-cart-sticky">

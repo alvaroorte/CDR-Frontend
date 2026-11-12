@@ -19,11 +19,12 @@
             <a
               class="hover-round-header px-2 lynch-900 flex align-items-center pt-1"
               [routerLink]="option.routerLink"
-              routerLinkActive='header-active border-primary'>
+              routerLinkActive='header-active border-primary'
+              [attr.aria-label]="option.label">
               @if (option.icon) {
-                <i [ngClass]="[option.icon, 'mr-2 font-semibol']"></i>
+                <i [ngClass]="[option.icon, 'header-link-icon mr-2 font-semibol']"></i>
               }
-              {{option.label}}
+              <span class="header-link-label">{{option.label}}</span>
             </a>
           </li>
         }
@@ -35,8 +36,10 @@
               (click)="parameters.toggle($event)"
               (keydown.enter)="parameters.toggle($event)"
               (keydown.space)="parameters.toggle($event)"
-              class="hover-round-header px-2 lynch-900 flex align-items-center pt-1 cursor-pointer">
-              {{ labels.configurations }}
+              class="hover-round-header px-2 lynch-900 flex align-items-center pt-1 cursor-pointer"
+              [attr.aria-label]="labels.configurations">
+              <i class="pi pi-cog header-link-icon mr-2"></i>
+              <span class="header-link-label">{{ labels.configurations }}</span>
               <i class="pi pi-angle-down ml-1"></i>
             </a>
           </li>

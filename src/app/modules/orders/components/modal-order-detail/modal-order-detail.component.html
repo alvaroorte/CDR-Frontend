@@ -2,7 +2,7 @@
   [header]="'Pedido ' + (order()?.codeLabel ?? '')" [modal]="true" appendTo="body" [dismissableMask]="true">
   @if (order(); as o) {
     <div class="flex flex-wrap gap-2 mb-3">
-      <p-tag [value]="o.statusLabel" [severity]="severity[o.status]" />
+      <p-tag [value]="o.status | orderStatusLabel" [severity]="severity[o.status]" />
       <p-tag [value]="o.serviceTypeLabel" severity="info" />
       @if (o.tableMarkerNumber !== null) {
         <p-tag [value]="'Mesa ' + o.tableMarkerNumber" severity="success" />
@@ -62,7 +62,7 @@
         <h4 class="mt-0 mb-2 lynch-900">Historial de estados</h4>
         <p-timeline [value]="o.statusHistory">
           <ng-template #content let-event>
-            <div class="font-semibold">{{ event.toStatusLabel }}</div>
+            <div class="font-semibold">{{ event.toStatus | orderStatusLabel }}</div>
             <div class="text-sm lynch-600">{{ event.changedAt | formatDateWhitHour }} · {{ event.changedBy }}</div>
             @if (event.note) {
               <div class="text-sm font-italic lynch-600">{{ event.note }}</div>

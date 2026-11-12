@@ -8,7 +8,9 @@
 
     <!-- ===== Filtros comunes ===== -->
     <form [formGroup]="formFilter" (ngSubmit)="search()"
-      class="sombra-black border-round-xl surface-0 p-3 mb-3 grid align-items-end fadeindown animation-duration-400">
+      class="sombra-black border-round-xl surface-0 p-3 mb-3 fadeindown animation-duration-400">
+      <!-- .grid va en un div interno: sus márgenes negativos desbordaban el contenedor en tablet vertical -->
+      <div class="grid align-items-end">
       <div class="col-12 md:col-6 lg:col-3">
         <label for="reportDates" class="font-semibold block mb-1">Fecha de negocio <span class="text-red-500">*</span></label>
         <p-datepicker inputId="reportDates" formControlName="dates" selectionMode="range" [readonlyInput]="true" [maxDate]="maxDate"
@@ -53,10 +55,11 @@
           Importes según el precio de cada pedido al momento de la venta; los pedidos cancelados no suman a las ventas.
         </div>
       }
+      </div>
     </form>
 
     <div class="sombra-black border-round-xl surface-0 p-2 fadeindown animation-duration-400">
-      <p-tabs [value]="activeTab" (valueChange)="onTabChange($event)">
+      <p-tabs [value]="activeTab" (valueChange)="onTabChange($event)" [scrollable]="true">
         <p-tablist>
           <p-tab [value]="REPORT_TYPE.SALES"><i class="pi pi-chart-line mr-2"></i>{{ reportLabels[REPORT_TYPE.SALES] }}</p-tab>
           <p-tab [value]="REPORT_TYPE.PRODUCTS"><i class="pi pi-shopping-bag mr-2"></i>{{ reportLabels[REPORT_TYPE.PRODUCTS] }}</p-tab>
@@ -73,10 +76,9 @@
                   { label: 'Bruto', value: report.summary.gross, icon: 'pi pi-shopping-cart', hint: 'Suma de subtotales' },
                   { label: 'Descuentos', value: report.summary.discount, icon: 'pi pi-percentage', hint: 'Descuentos generales aplicados' },
                   { label: 'Neto', value: report.summary.net, icon: 'pi pi-chart-line', hint: 'Bruto − descuentos' },
-                  { label: 'Pagado', value: report.summary.paid, icon: 'pi pi-money-bill', hint: 'Cobros vigentes (sin devoluciones)' },
-                  { label: 'Ticket promedio', value: report.summary.averageTicket, icon: 'pi pi-receipt', hint: 'Neto ÷ pedidos' }
+                  { label: 'Pagado', value: report.summary.paid, icon: 'pi pi-money-bill', hint: 'Cobros vigentes (sin devoluciones)' }
                 ]; track tile.label) {
-                  <div class="col-12 sm:col-6 xl:col">
+                  <div class="col-12 sm:col-6 xl:col-3">
                     <div class="sombra-black border-round-xl surface-0 p-3 h-full" [pTooltip]="tile.hint" tooltipPosition="top">
                       <div class="lynch-600"><i [class]="tile.icon + ' mr-2 text-primary'"></i>{{ tile.label }}</div>
                       <div class="text-2xl font-bold lynch-900 mt-2">{{ tile.value | currencyBs }}</div>
@@ -142,7 +144,7 @@
                           <span class="font-semibold">{{ type.net | currencyBs }}</span>
                         </div>
                         <p-progressbar [value]="type.sharePercent" [showValue]="false" class="mt-2" [style]="{ height: '0.5rem' }" />
-                        <div class="text-sm lynch-600 text-right">{{ type.sharePercent }} %</div>
+                        <div class="text-sm lynch-600 text-right">{{ type.sharePercent | percentBs }}</div>
                       </div>
                     } @empty {
                       <div class="lynch-600">Sin ventas en el período.</div>
@@ -181,7 +183,7 @@
                           <td class="text-right">{{ row.quantity }}</td>
                           <td class="text-right">{{ row.orderCount }}</td>
                           <td class="text-right">{{ row.gross | currencyBs }}</td>
-                          <td class="text-right lynch-600">{{ row.sharePercent }} %</td>
+                          <td class="text-right lynch-600">{{ row.sharePercent | percentBs }}</td>
                         </tr>
                       </ng-template>
                       <ng-template #emptymessage>
@@ -203,7 +205,7 @@
                           <span class="font-semibold">{{ category.gross | currencyBs }}</span>
                         </div>
                         <p-progressbar [value]="category.sharePercent" [showValue]="false" class="mt-2" [style]="{ height: '0.5rem' }" />
-                        <div class="text-sm lynch-600 text-right">{{ category.sharePercent }} %</div>
+                        <div class="text-sm lynch-600 text-right">{{ category.sharePercent | percentBs }}</div>
                       </div>
                     } @empty {
                       <div class="lynch-600">Sin ventas en el período.</div>
@@ -241,7 +243,7 @@
                           <td class="text-right font-semibold">{{ row.paid | currencyBs }}</td>
                           <td class="text-right">{{ row.refundedCount }}</td>
                           <td class="text-right" [class.text-red-500]="row.refunded > 0">{{ row.refunded | currencyBs }}</td>
-                          <td class="text-right lynch-600">{{ row.sharePercent }} %</td>
+                          <td class="text-right lynch-600">{{ row.sharePercent | percentBs }}</td>
                         </tr>
                       </ng-template>
                       <ng-template #emptymessage>
@@ -253,7 +255,8 @@
                 <div class="col-12">
                   <div class="sombra-black border-round-xl surface-0 p-3">
                     <h3 class="mt-0 lynch-900">Cajas abiertas en el período</h3>
-                    <p-table [value]="report.cashSessions" [scrollable]="true" scrollHeight="28rem" styleClass="p-datatable-sm">
+                    <p-table [value]="report.cashSessions" [scrollable]="true" scrollHeight="28rem" styleClass="p-datatable-sm"
+                      [virtualScroll]="report.cashSessions.length > 100" [virtualScrollItemSize]="37">
                       <ng-template #header>
                         <tr>
                           <th>Caja</th>
@@ -339,7 +342,7 @@
                     <h3 class="mt-0 lynch-900">Pedidos por estado</h3>
                     @for (status of report.statuses; track status.status) {
                       <div class="flex justify-content-between align-items-center py-2 border-bottom-1 surface-border">
-                        <p-tag [value]="statusLabel(status.status)" [severity]="statusSeverity(status.status)" />
+                        <p-tag [value]="status.status | orderStatusLabel" [severity]="statusSeverity(status.status)" />
                         <span><span class="font-semibold text-lg">{{ status.orderCount }}</span>
                           <span class="text-sm lynch-600 ml-2">{{ status.total | currencyBs }}</span></span>
                       </div>
@@ -350,7 +353,8 @@
                 <div class="col-12">
                   <div class="sombra-black border-round-xl surface-0 p-3">
                     <h3 class="mt-0 lynch-900">Descuentos aplicados <span class="text-base lynch-600">({{ report.discounts.length }})</span></h3>
-                    <p-table [value]="report.discounts" [scrollable]="true" scrollHeight="24rem" styleClass="p-datatable-sm">
+                    <p-table [value]="report.discounts" [scrollable]="true" scrollHeight="24rem" styleClass="p-datatable-sm"
+                      [virtualScroll]="report.discounts.length > 100" [virtualScrollItemSize]="37">
                       <ng-template #header>
                         <tr>
                           <th>Pedido</th>
@@ -388,7 +392,8 @@
                 <div class="col-12">
                   <div class="sombra-black border-round-xl surface-0 p-3">
                     <h3 class="mt-0 lynch-900">Cancelaciones <span class="text-base lynch-600">({{ report.cancellations.length }})</span></h3>
-                    <p-table [value]="report.cancellations" [scrollable]="true" scrollHeight="24rem" styleClass="p-datatable-sm">
+                    <p-table [value]="report.cancellations" [scrollable]="true" scrollHeight="24rem" styleClass="p-datatable-sm"
+                      [virtualScroll]="report.cancellations.length > 100" [virtualScrollItemSize]="37">
                       <ng-template #header>
                         <tr>
                           <th>Pedido</th>

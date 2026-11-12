@@ -26,6 +26,12 @@ Guía para Claude Code en este repositorio. Frontend del sistema de pedidos de l
 > Usuarios, descuentos y estados (tarjetas + tablas PrimeNG, **sin librería de gráficos**), cada pestaña se consulta al
 > abrirla y se reutiliza mientras no cambie el filtro. Exportar Excel = archivo generado por el backend (base64) →
 > `FileService.convertBase64ToFile` + `downloadFile` (como la referencia). `ProgressBarModule` añadido a `PrimeModules`.
+> **Etapa 7:** solo dos entornos: `environment.development.ts` (localhost:8086) y `environment.ts` (prod,
+> `server_url: '/cdr/'` = API en el mismo dominio detrás de un proxy; la URL de prod sigue pendiente). Pipes
+> `orderStatusLabel` (la UI nunca muestra la etiqueta técnica EN_PREPARACION) y `percentBs` ("50,34 %"). Barra superior
+> solo con iconos bajo 1280 px; cocina en 3 columnas desde 992 px; `.p-fieldset { min-width: 0 }`. Quitados los pipes sin
+> uso que saltaban el sanitizador (`safe`, `sanitizeHtml`). Tablas largas de reportes con scroll virtual.
+> Recorrido verificado en Chrome headless: escritorio, iPad horizontal/vertical, tablet Android y teléfono (bloqueado).
 > Las etapas se ejecutan **solo con aprobación explícita** del usuario
 > (plan: `../cdr-backend/docs/plans/001-arquitectura-inicial.md` §8).
 
@@ -60,8 +66,8 @@ Conflictos ya resueltos con `angular-developer`:
 Angular 21 standalone (zone.js, `provideZoneChangeDetection`), PrimeNG 21 + `@primeng/themes` (preset
 Lara), PrimeFlex 4, PrimeIcons 7, RxJS 7.8, Vitest. `@stomp/stompjs` + `sockjs-client` se instalan en la Etapa 4.
 `.npmrc` fija `legacy-peer-deps=true`: npm 10.9 falla con "Cannot read properties of null (reading 'edgesOut')"
-al resolver los peers de vitest/jsdom. Tests: solo `src/**/*.spec.ts` (angular.json), porque Vitest
-tomaría `environment.test.ts` como archivo de pruebas.
+al resolver los peers de vitest/jsdom. Tests: solo `src/**/*.spec.ts` (angular.json), para que Vitest no tome
+como pruebas archivos que terminen en `.test.ts`.
 **No** se copian de la referencia: ngx-translate, jwt-decode, highcharts y exceljs/file-saver (Etapa 6: reportes
 con tarjetas + tablas y Excel generado en el backend — decisión aprobada), quill, ng-recaptcha-2, Karma/Jasmine,
 `curd.service.ts`, `http.service.ts`.
@@ -73,7 +79,7 @@ npm install
 npm start                       # http://localhost:4200 (environment.development.ts)
 npm test                        # Vitest
 npx ng test --include='src/app/modules/products/**/*.spec.ts' --watch=false
-npm run build:dev | build:qa | build:prod
+npm run build:prod              # producción (environment.ts: API en el mismo dominio, /cdr/)
 ```
 
 ## Arquitectura (resumen — detalle en docs/frontend-architecture.md)

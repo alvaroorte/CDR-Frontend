@@ -39,6 +39,25 @@ describe('CartService', () => {
     expect(cart.lines()[0].quantity).toBe(3);
   });
 
+  it('updateNotes agrega, cambia y quita la observación de una línea', () => {
+    cart.addLine(capuchino, 2, [], null);
+    cart.updateNotes(cart.lines()[0].key, '  sin azúcar ');
+    expect(cart.lines()[0].notes).toBe('sin azúcar');
+    expect(cart.lines()[0].quantity).toBe(2);
+    cart.updateNotes(cart.lines()[0].key, '   ');
+    expect(cart.lines()[0].notes).toBeNull();
+    expect(cart.lines().length).toBe(1);
+  });
+
+  it('updateNotes fusiona con una línea idéntica sumando cantidades', () => {
+    cart.addLine(capuchino, 1, [], 'caliente');
+    cart.addLine(capuchino, 2, [], null);
+    cart.updateNotes(cart.lines()[1].key, 'caliente');
+    expect(cart.lines().length).toBe(1);
+    expect(cart.lines()[0].quantity).toBe(3);
+    expect(cart.lines()[0].notes).toBe('caliente');
+  });
+
   it('aplica descuento porcentual redondeado y fijo', () => {
     cart.addLine(capuchino, 3, [], null);
     cart.setDiscount({ type: DISCOUNT_TYPE.PERCENTAGE, value: 12.5, reason: 'x' });

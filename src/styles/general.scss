@@ -144,6 +144,23 @@ input.p-password-input {
     padding-top: 0.6rem;
     padding-bottom: 0.6rem;
 }
+// ===== CDR: un <fieldset> tiene min-width: min-content por defecto; con contenido ancho (pestañas,
+// tablas) desbordaba la página en tablet vertical. Se permite que se encoja como cualquier bloque. =====
+.p-fieldset {
+    min-width: 0;
+}
+// ===== CDR: barra superior compacta en tablet (Etapa 7) =====
+// Por debajo de 1280px el menú del ADMIN no cabe en una fila: se muestran solo los iconos
+// (el texto queda en aria-label) para que no se parta en dos líneas.
+@media (max-width: 1279px) {
+    .header-link-label {
+        display: none;
+    }
+    .header-link-icon {
+        margin-right: 0 !important;
+        font-size: 1.25rem;
+    }
+}
 // ===== CDR: POS y caja (Etapa 3) =====
 // Controles táctiles >= 48px; colores por tokens de PrimeNG para que funcionen en claro y oscuro.
 .pos-touch .p-button,
@@ -155,15 +172,16 @@ input.p-password-input {
 .pos-category-chip {
     min-height: 48px;
     border: 2px solid transparent;
-    background: var(--p-content-background);
+    background: var(--p-surface-300);
     color: var(--p-text-color);
     transition: border-color 0.2s, background 0.2s;
 }
 
 .pos-category-chip-active {
-    border-color: var(--p-primary-color);
-    background: var(--p-primary-color);
-    color: var(--p-primary-contrast-color);
+    border-color: var(--p-content-background);
+    background: var(--p-content-background);
+    color: var(--p-primary-color);
+    @extend .sombra-black;
 }
 
 .pos-category-img {
