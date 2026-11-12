@@ -40,7 +40,6 @@ export const LABELS = {
     parameters: "Parámetros",
     myInformation: "Mi información",
     logout: "Cerrar sesión",
-    home: "Inicio",
     withOutImage: "Sin imagen",
     deactivate: "Desactivar",
     active: "Activo",

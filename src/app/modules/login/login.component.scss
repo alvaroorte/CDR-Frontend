@@ -2,8 +2,12 @@
     font-size: clamp(2.5rem, 4.2vw, 6rem);
 }
 
-.width-image-logo {
-    font-size: clamp(5rem, 7vw, 10rem);
+// El logo es circular sobre fondo blanco: el recorte en círculo evita el cuadro blanco en modo oscuro.
+.login-logo {
+    width: clamp(9rem, 12vw, 14rem);
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 50%;
 }
 
 .animation-logo-cdr {

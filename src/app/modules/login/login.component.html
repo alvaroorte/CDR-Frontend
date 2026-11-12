@@ -1,13 +1,11 @@
 <form [formGroup]="formLogin" (ngSubmit)="submitLogin()">
   <div class="grid px-5 mt-8">
     <div class="col-12 flex justify-content-center align-items-start">
-      <!-- Logo provisional (icono) hasta contar con el logo de la marca -->
-      <i class="pi pi-shop text-teal-600 width-image-logo animation-logo-cdr animation-iteration-infinite"></i>
+      <img src="assets/images/cdr.jpg" alt="Logo de Ciudad de Refugio"
+        class="login-logo animation-logo-cdr animation-iteration-infinite" />
+
     </div>
 
-    <div class="col-12 flex justify-content-center mt-0 mb-1">
-        <h1 class="title-welcome text-teal-600 text-center"> {{ appName }} </h1>
-    </div>
     <div class="col-12 flex justify-content-center align-items-center zoomin animation-duration-1000">
       <div class="p-fluid mt-3 background-gray-blured px-5 pt-5 pb-3 w-30rem">
 

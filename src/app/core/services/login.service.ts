@@ -86,13 +86,14 @@ export class LoginService {
   }
 
   /**
-   * Pantalla inicial tras el login: quien cobra (ADMIN, CAJERO) va al POS, COCINA al tablero.
+   * Pantalla inicial tras el login (no hay pantalla de "Inicio"): quien cobra (ADMIN, CAJERO) va al POS,
+   * COCINA al tablero. Un usuario sin ninguno de esos roles no tiene pantallas → 404.
    */
   public homeRoute(): string {
     if (this.haveSomeRole([ROLES_CODE_SYSTEM.ADMIN, ROLES_CODE_SYSTEM.CASHIER])) {
       return '/pos';
     }
-    return this.haveSomeRole([ROLES_CODE_SYSTEM.KITCHEN]) ? '/kitchen' : '/inicio';
+    return this.haveSomeRole([ROLES_CODE_SYSTEM.KITCHEN]) ? '/kitchen' : '/404';
   }
 
   private loadCurrentUser(): void {

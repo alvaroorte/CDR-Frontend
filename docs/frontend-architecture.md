@@ -33,7 +33,7 @@ src/
    │  ├─ utils/       table-column-definitions, prime-table-props, filter, device, ...
    │  └─ validators/  noSpaceValidator, ...
    ├─ modules/
-   │  ├─ login/  home/
+   │  ├─ login/
    │  ├─ user/ role/                 CRUD (angular-crud); permisos se asignan desde role/ (modal-permissions)
    │  ├─ category/ product/ addon/ table-marker/ payment-method/ parameter/   CRUD (angular-crud)
    │  │     carpeta en singular, ruta en plural (skill angular-crud). Referencia local: category/

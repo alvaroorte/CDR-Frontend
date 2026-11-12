@@ -23,7 +23,7 @@ describe('LoginComponent', () => {
       login: vi.fn().mockReturnValue(of(loginResponse)),
       setSession: vi.fn(),
       setUser: vi.fn(),
-      homeRoute: () => '/inicio',
+      homeRoute: () => '/pos',
     };
     TestBed.configureTestingModule({
       providers: [

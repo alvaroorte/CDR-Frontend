@@ -1,7 +1,6 @@
 import { MenuHeader } from "@core/models/header";
 import { ROLES_CODE_SYSTEM } from "../enums/roles";
 
-const ALL_ROLES = [ROLES_CODE_SYSTEM.ADMIN, ROLES_CODE_SYSTEM.CASHIER, ROLES_CODE_SYSTEM.KITCHEN];
 const ADMIN = [ROLES_CODE_SYSTEM.ADMIN];
 /** Cobran y registran pedidos: necesitan caja abierta. */
 const CASH = [ROLES_CODE_SYSTEM.ADMIN, ROLES_CODE_SYSTEM.CASHIER];
@@ -12,7 +11,6 @@ const CASH = [ROLES_CODE_SYSTEM.ADMIN, ROLES_CODE_SYSTEM.CASHIER];
  * El backend valida igualmente cada petición: esto solo controla la navegación y el menú.
  */
 export const urlsWithPermissions: MenuHeader[] = [
-  { routerLink: 'inicio', label: 'Inicio', access: ALL_ROLES, show: true, icon: 'pi pi-home' },
   // ----- Operación (Etapa 3) -----
   { routerLink: 'pos', label: 'Nuevo pedido', access: CASH, show: true, icon: 'pi pi-shopping-cart' },
   { routerLink: 'orders', label: 'Pedidos', access: CASH, show: true, icon: 'pi pi-list' },

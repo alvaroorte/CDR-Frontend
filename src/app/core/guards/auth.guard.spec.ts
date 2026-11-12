@@ -37,7 +37,7 @@ describe('authGuard', () => {
   });
 
   it('permite la ruta si el usuario tiene alguno de sus roles', () => {
-    expect(run('inicio')).toBe(true);
+    expect(run('pos')).toBe(true);
     expect(router.navigate).not.toHaveBeenCalled();
   });
 
@@ -48,13 +48,13 @@ describe('authGuard', () => {
 
   it('cierra sesión si no hay token', () => {
     token = null;
-    expect(run('inicio')).toBe(false);
+    expect(run('pos')).toBe(false);
     expect(loginService.logout).toHaveBeenCalled();
   });
 
   it('restaura la sesión desde el token tras recargar la página', () => {
     loginService.userId.set(null);
-    run('inicio');
+    run('pos');
     expect(loginService.setUser).toHaveBeenCalled();
   });
 });

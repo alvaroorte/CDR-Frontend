@@ -165,7 +165,7 @@ describe('LoginService', () => {
     expect(httpMock.match(() => true).length).toBe(0);
   });
 
-  it('homeRoute: quien cobra va al POS, COCINA al tablero, el resto a inicio', () => {
+  it('homeRoute: quien cobra va al POS, COCINA al tablero, el resto a /404', () => {
     service.rolesUser.set([ROLES_CODE_SYSTEM.CASHIER]);
     expect(service.homeRoute()).toBe('/pos');
     service.rolesUser.set([ROLES_CODE_SYSTEM.ADMIN]);
@@ -173,6 +173,6 @@ describe('LoginService', () => {
     service.rolesUser.set([ROLES_CODE_SYSTEM.KITCHEN]);
     expect(service.homeRoute()).toBe('/kitchen');
     service.rolesUser.set([]);
-    expect(service.homeRoute()).toBe('/inicio');
+    expect(service.homeRoute()).toBe('/404');
   });
 });

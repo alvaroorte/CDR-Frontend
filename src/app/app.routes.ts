@@ -8,11 +8,6 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () => import('./modules/login/login.component').then(c => c.LoginComponent),
   },
-  {
-    path: 'inicio',
-    loadComponent: () => import('./modules/home/home.component').then(c => c.HomeComponent),
-    canActivate: [authGuard]
-  },
   // ----- Operación (Etapa 3) -----
   {
     path: 'pos',

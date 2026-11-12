@@ -42,7 +42,7 @@ export class HeaderComponent implements OnInit, AfterViewInit {
     private document = inject(DOCUMENT);
 
     public readonly labels = LABELS;
-    public readonly appName = environment.app_name;
+    public readonly appName = "CDR - Cafetería";
     public readonly labelMode: string = LABELS.modeLight + " / " + LABELS.modeDark;
     public themeSelection: boolean = false;
     public backgroundColorHeader: string = 'bg-white-alpha-30';

@@ -13,7 +13,8 @@ Guía para Claude Code en este repositorio. Frontend del sistema de pedidos de l
 > **Etapa 3:** `modules/pos` (contenedor + `product-grid`, `modal-product-config`, `cart-panel`,
 > `checkout` con `p-stepper`; `CartService` y `PosService`) y `modules/cash-register` (apertura, totales,
 > movimientos). `CashSessionService` en `core/services` (estado compartido POS / caja / header).
-> Tras el login ADMIN y CAJERO van a `/pos`; COCINA a `/kitchen`.
+> Tras el login ADMIN y CAJERO van a `/pos`; COCINA a `/kitchen`. **Sin pantalla de inicio**: la ruta `/inicio`
+> (placeholder de la Etapa 1) se eliminó; "Nuevo pedido" es la pantalla principal.
 > **Etapa 4:** `core/services/order-ws.service.ts` (STOMP/SockJS, conectado desde el header al iniciar sesión,
 > resync + dedupe por versión), `core/services/order.service.ts` (REST), `modules/kitchen` (tablero con
 > `kitchen-card`, sonido, demoras por parámetro) y `modules/orders` (En curso / Historial, detalle y cancelación).
